@@ -4,13 +4,11 @@ namespace App\Http\Controllers;
 
 use App\AdminPanel;
 use Illuminate\Http\Request;
-use App\User;
+
 use App\Http\Requests\StoreAdmin;
-use App\Http\Requests\StoreContent;
-use Illuminate\Support\Facades\Hash;
+
 use App\Repositories\Admin\AdminRepositoryInterface;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
+
 
 class AdminPanelController extends Controller
 {
@@ -23,7 +21,9 @@ class AdminPanelController extends Controller
 
     public function index()
     {
+        dd( 'test');
         $users = $this->adminRepo->countAllUsers();
+        
         $managers = $this->adminRepo->countAllManagers();
         $admins = $this->adminRepo->countAllAdmins();
         $managers_threads = $this->adminRepo->countAllThreadsByManager();
