@@ -32,47 +32,44 @@
             <a href="/"><i class="fa fa-circle text-info"></i> Home</a>
         </div>
         <hr>
+        <div class="user-panel">
+            <a href="{{ route('community.homepage')}}"><i class="fa fa-circle text-info"></i> Community</a>
+        </div>
+        <hr>
         @if(Auth::user()->email_verified_at == NULL)
 
 
         @else
 
+
+
+
+        
+        @if (Auth::user()->role == "admin")
         <div class="user-panel">
-            @if (Auth::user()->role == "admin")
-            <a href="{{ route('admin.tag.add')}}"><i class="fa fa-circle text-info"></i> Add Tag</a>
-            @else
 
-            @endif
-        </div>
-
-
-        <hr>
-        <div class="user-panel">
-            @if (Auth::user()->role == "admin")
             <!-- Status -->
-            <a href="{{ route('admin.dashboard')}}"><i class="fa fa-circle text-info"></i> DashBoard</a>
-            @else
+            <a href="{{ route('admin.dashboard', ['id'=>Auth::user()->id])}}"><i class="fa fa-circle text-info"></i> DashBoard</a>
 
-            @endif
+
         </div>
         <hr>
         <div class="user-panel">
-            @if (Auth::user()->role == "admin")
+
             <!-- Status -->
             <a href="{{ route('admin.export.user')}}"><i class="fa fa-circle text-info"></i> Export Users list</a>
-            @else
 
-            @endif
         </div>
         <hr>
         <div class="user-panel">
-            @if (Auth::user()->role == "admin")
+
             <!-- Status -->
             <a href="{{ route('admin.export.thread')}}"><i class="fa fa-circle text-info"></i> Export threads List</a>
-            @else
 
-            @endif
         </div>
+        @else
+
+        @endif
         <!-- Sidebar Menu -->
         <hr>
         <ul class="sidebar-menu" data-widget="tree">

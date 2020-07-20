@@ -89,7 +89,7 @@
                 <table class="table table-striped text-center">
                     <thead>
                         <tr>
-                            <th><a href="/admin/lists">Number of Admins</a></th>
+                            <th><a href="/admin/{{Auth::user()->id}}/lists">Number of Admins</a></th>
                             <th>Number of threads by Admins</th>
 
                         </tr>

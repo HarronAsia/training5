@@ -85,7 +85,7 @@
                                         @if($forum->deleted_at != NULL)
 
                                         @else
-
+                                        @can('updateforum', $thread)
                                         <div class="pull-right">
                                             <a href="{{ route('manager.forum.edit', ['id'=> $forum->id])}}">
                                                 <button type="button" class="btn btn-info btn-lg">
@@ -93,6 +93,13 @@
                                                 </button>
                                             </a>
                                         </div>
+                                        @endcan
+
+                                        @cannot('updateforum', $thread)
+
+                                        @endcannot
+
+                                        @can('deleteforum', $thread)
                                         <div class="pull-right">
                                             <a href="{{ route('manager.forum.delete', ['id'=> $forum->id])}}">
                                                 <button type="button" class="btn btn-danger btn-lg">
@@ -100,6 +107,13 @@
                                                 </button>
                                             </a>
                                         </div>
+                                        @endcan
+
+                                        @cannot('deleteforum', $thread)
+
+                                        @endcannot
+
+
                                         @endif
                                     </td>
                                 </tr>
@@ -107,16 +121,16 @@
                                 @endif
 
                                 @endforeach
-                                
+
                             </tbody>
                         </table>
-                        
+
                     </div>
                 </div>
-                
+
             </li>
         </ol>
-        
+
     </div>
 
 </div>

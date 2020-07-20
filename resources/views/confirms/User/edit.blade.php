@@ -7,7 +7,7 @@
         <!-- Profile Page -->
         <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
 
-        <form action="/profile/edit/confirm/{{Auth::user()->id}} " method="POST" enctype="multipart/form-data" id="editprofile">
+        <form action="{{ route('profile.edit.confirm', ['id'=> Auth::user()->id])}} " method="POST" enctype="multipart/form-data" id="editprofile">
             @csrf
 
             <div class="form-group">
@@ -56,7 +56,7 @@
         <!-- Profile Page -->
         <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
 
-        <form action="{{ route('profile.edit.confirm', ['id' => Auth::user()->id ])}} " method="POST" enctype="multipart/form-data" id="editprofile">
+        <form action="{{ route('profile.edit.confirm', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}} " method="POST" enctype="multipart/form-data" id="editprofile">
             @csrf
 
             <div class="form-group">

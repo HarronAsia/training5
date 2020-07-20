@@ -53,6 +53,24 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Forum\ForumRepository::class
 
         );
+
+        $this->app->singleton(
+            \App\Repositories\Community\CommunityRepositoryInterface::class,
+            \App\Repositories\Community\CommunityRepository::class
+
+        );
+
+        $this->app->singleton(
+            \App\Repositories\Post\PostRepositoryInterface::class,
+            \App\Repositories\Post\PostRepository::class
+
+        );
+
+        $this->app->singleton(
+            \App\Repositories\Comment\CommentRepositoryInterface::class,
+            \App\Repositories\Comment\CommentRepository::class
+
+        );
     }
 
     /**

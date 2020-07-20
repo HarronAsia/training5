@@ -15,9 +15,8 @@
         <a href="javascript:history.back()" class="btn btn-primary">Back</a>
         <hr>
         <h3 class="card-header bg-primary d-flex justify-content-between">
-           Managers list
+            Managers list
         </h3>
-
 
         <div class="card-body">
             <div class="table-responsive" id="showBlog">
@@ -82,6 +81,7 @@
 
             </div>
         </div>
+        {{$users->links()}}
 
     </div>
 

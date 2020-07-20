@@ -57,11 +57,11 @@
                 </div>
                 @if(Auth::user()->id == $user->id)
                 <div class="card border-secondary">
-                    <a href="{{ route('profile.edit', ['id' => Auth::user()->id ])}}" class="btn btn-info">Edit Profile</a>
+                    <a href="{{ route('profile.edit', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}}" class="btn btn-info">Edit Profile</a>
                 </div>
                 <br>
                 <div class="card border-secondary">
-                    <a href="{{ route('account.profile.add', ['id' => Auth::user()->id ])}}" class="btn btn-info">Add Account Personal</a>
+                    <a href="{{ route('account.profile.add', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}}" class="btn btn-info">Add Account Personal</a>
                 </div>
                 @endif
             </div>

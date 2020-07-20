@@ -9,7 +9,7 @@ use Faker\Generator as Faker;
 $factory->define(Forum::class, function (Faker $faker) {
     return [
         'title' => $faker->sentence,
-        'category_id'=>rand(1,100),
-        'user_id'=>rand(1,100),
+        'category_id'=>rand(1,10),
+        'user_id'=>rand(1,10),
     ];
 });

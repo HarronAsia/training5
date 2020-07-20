@@ -6,7 +6,7 @@ use App\Repositories\BaseRepository;
 
 use App\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+
 use App\Http\Requests\StoreAdmin;
 use Illuminate\Support\Facades\Session;
 
@@ -49,7 +49,7 @@ class AdminRepository extends BaseRepository implements AdminRepositoryInterface
     //*===============For User=============================*//
     public function getAllUsers()
     {
-        return $this->model = User::all()->where('role', '=', 'member');
+        return $this->model = DB::table('users')->where('role', '=', 'member"')->paginate(10);
     }
 
     //*===============For User=============================*//
@@ -58,7 +58,7 @@ class AdminRepository extends BaseRepository implements AdminRepositoryInterface
     //*===============For Manager=============================*//
     public function getAllManagers()
     {
-        return $users = User::all()->where('role', '=', 'manager');
+        return $users = DB::table('users')->where('role', '=', '"manager"')->paginate(10);
     }
 
     //*===============For Manager=============================*//
@@ -67,7 +67,7 @@ class AdminRepository extends BaseRepository implements AdminRepositoryInterface
     //*===============For ADmin=============================*//
     public function getAllAdmins()
     {
-        return $users = User::all()->where('role', '=', 'admin');
+        return $users = DB::table('users')->where('role', '=', '"admin"')->paginate(10);
     }
 
     //*===============For Admin=============================*//

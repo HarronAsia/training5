@@ -31,6 +31,7 @@
 </head>
 
 <body class="skin-blue sidebar-mini">
+
     @if (!Auth::guest())
     <div class="wrapper">
         <!-- Main Header -->
@@ -38,7 +39,6 @@
 
             <!-- Logo -->
             <a href="/" class="logo">
-
                 <b>Harron</b>
             </a>
 
@@ -86,12 +86,12 @@
                                 @else
                                 <li class="user-footer">
 
-                                    <a href="{{ route('profile.index', ['id' => Auth::user()->id ])}}" class="btn btn-default btn-flat">Profile</a>
+                                    <a href="{{ route('profile.index', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}}" class="btn btn-default btn-flat">Profile</a>
 
                                 </li>
                                 <li class="user-footer">
 
-                                    <a href="{{ route('account.profile', ['id' => Auth::user()->id ])}}" class="btn btn-default btn-flat">Personal Information</a>
+                                    <a href="{{ route('account.profile', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}}" class="btn btn-default btn-flat">Personal Information</a>
 
                                 </li>
                                 <li class="user-footer">
@@ -206,6 +206,18 @@
                 }
             }
 
+            function PreviewImage2(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        $('#image_preview_container2').attr('src', e.target.result);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
 
             $("#photo").change(function() {
                 PreviewImage(this);
@@ -219,9 +231,21 @@
                 PreviewImage(this);
             });
 
+            $("#banner").change(function() {
+                PreviewImage(this);
+            });
+
+            $("#image").change(function() {
+                PreviewImage(this);
+            });
+
+            $("#comment_image").change(function() {
+                PreviewImage2(this);
+            });
+
             //Preview Image-----------------------------------------------------------------------//
 
-
+ 
 
         });
     </script>

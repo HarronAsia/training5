@@ -6,7 +6,7 @@
         <!-- Profile Page -->
         <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
 
-        <form action="{{ route('profile.edit', ['id' => Auth::user()->id ])}} " method="POST" enctype="multipart/form-data" id="editprofile">
+        <form action="{{ route('profile.update', ['id'=> Auth::user()->id])}} " method="POST" enctype="multipart/form-data" id="editprofile">
             @csrf
 
             <div class="form-group">

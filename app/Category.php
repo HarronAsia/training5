@@ -15,6 +15,6 @@ class Category extends Model
 
     public function forums()
     {
-        return $this->hasMany(Forum::class);
+        return $this->hasMany('App\Forum');
     }
 }

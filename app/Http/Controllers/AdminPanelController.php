@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\AdminPanel;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreAdmin;
 
 use App\Repositories\Admin\AdminRepositoryInterface;
@@ -21,9 +21,9 @@ class AdminPanelController extends Controller
 
     public function index()
     {
-        dd( 'test');
+
         $users = $this->adminRepo->countAllUsers();
-        
+
         $managers = $this->adminRepo->countAllManagers();
         $admins = $this->adminRepo->countAllAdmins();
         $managers_threads = $this->adminRepo->countAllThreadsByManager();
@@ -106,25 +106,25 @@ class AdminPanelController extends Controller
     }
 
     public function editmember($id)
-    { 
+    {
         $user = $this->adminRepo->findAccount($id);
         return view('admin.lists.users.edit_user', compact('user'));
     }
 
     public function confirmMember(StoreAdmin $request, $id)
     {
-        
+
         $value = $this->adminRepo->findAccount($id);
-        
+
         $user = $this->adminRepo->confirmAdmin($request, $value->id);
-        
+
         return view('confirms.admin.edituser', compact('user'));
     }
 
     public function updateusers($id)
     {
         $user = $this->adminRepo->findAccount($id);
-        
+
         $this->adminRepo->editforAdmin($user->id);
 
         return redirect('/admin/member/lists');
@@ -201,10 +201,10 @@ class AdminPanelController extends Controller
     public function updateadmins($id)
     {
         $user = $this->adminRepo->findAccount($id);
-        //dd('admin',$user);
+        
         $this->adminRepo->editforAdmin($user->id);
 
-        return redirect('/admin/lists');
+        return redirect('/admin/{{Auth::user()->id}}/lists');
     }
 
     public function destroyadmins($id)
@@ -213,4 +213,6 @@ class AdminPanelController extends Controller
         $user->delete();
         return redirect('/admin/lists');
     }
+
+
 }

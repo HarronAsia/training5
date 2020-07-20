@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\MailController;
 use App\Providers\RouteServiceProvider;
 use App\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -74,13 +73,7 @@ class RegisterController extends Controller
             
         ]);
 
-        if($data != NULL)
-        {
-            MailController::sendverification($data['name'], $data['email'], $data['token']);
-            //show Message Alert
-            return redirect()->back()->with(session()->flash('alert-success', 'Successfully created! Go to your mailbox and check for verification link!'));
-        }
-        return redirect()->back()->with(session()->flash('alert-danger', 'Failed to create! try again later !'));
+       
     }
 
 

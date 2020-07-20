@@ -29,22 +29,25 @@ Route::get('auth/google/callback', 'GoogleController@handleGoogleCallback');
 Auth::routes(['verify' => true]);
 
 
+//--------Viewable Page------------------------//
 
-Route::get('/', 'HomeController@index')->middleware('verified');
+Route::get('/', 'HomeController@index');
+
 Route::get('/{id}', 'CategoryController@show')->middleware('verified')->name('category.index');
 
 Route::get('/{id}/{forumid}', 'ForumController@show')->middleware('verified')->name('forum.show');
 
 Route::get('/{id}/thread/homepage', 'ThreadController@index')->middleware('verified')->name('thread.show');
+
 Route::get('/thread/{id}', 'ThreadController@show')->middleware('verified')->name('thread.detail');
 
-
+//--------Viewable Page------------------------//
 
 //--------Profile------------------------//
 
-Route::get('/profile/{id}', 'UserController@show')->middleware('verified')->name('profile.index');
+Route::get('/profile/{name}/{id}', 'UserController@show')->middleware('verified')->name('profile.index');
 
-Route::get('/profile/edit/{id}', 'UserController@edit')->middleware('verified')->name('profile.edit');
+Route::get('/profile/edit/{name}/{id}', 'UserController@edit')->middleware('verified')->name('profile.edit');
 
 Route::post('/profile/edit/confirm/{id}', 'UserController@confirm')->middleware('verified')->name('profile.edit.confirm');
 
@@ -55,7 +58,7 @@ Route::post('/profile/update/{id}', 'UserController@update')->middleware('verifi
 
 //--------Account------------------------//
 
-Route::get('/account/index/{id}', 'ProfileController@show')->middleware('verified')->name('account.profile');
+Route::get('/account/index/{name}/{id}', 'ProfileController@show')->middleware('verified')->name('account.profile');
 
 Route::get('/account/personal-details/{id}', 'ProfileController@create')->middleware('verified')->name('account.profile.add');
 
@@ -122,6 +125,42 @@ Route::group([
     //--------Forum------------------------//
 });
 
+Route::group([
+    'prefix' => 'manager/{id}/Post',
+    'middleware' => 'App\Http\Middleware\ManagerMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::post('/create', 'PostController@store')->middleware('verified')->name('manager.post.create');
+
+    Route::get('/edit/{postid}', 'PostController@edit')->middleware('verified')->name('manager.post.edit');
+
+    Route::post('/update/{postid}', 'PostController@update')->middleware('verified')->name('manager.post.update');
+
+    Route::get('/delete/{postid}', 'PostController@destroy')->middleware('verified')->name('manager.post.delete');
+ 
+    //--------Post------------------------//
+});
+
+
+Route::group([
+    'prefix' => 'manager/{postid}/Comment',
+    'middleware' => 'App\Http\Middleware\ManagerMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::post('/create', 'CommentController@store')->middleware('verified')->name('manager.comment.create');
+
+    Route::get('/edit/{commentid}', 'CommentController@edit')->middleware('verified')->name('manager.comment.edit');
+
+    Route::post('/update/{commentid}', 'CommentController@update')->middleware('verified')->name('manager.comment.update');
+
+    Route::get('/delete/{commentid}', 'CommentController@destroy')->middleware('verified')->name('manager.comment.delete');
+ 
+    //--------Post------------------------//
+});
 //--------For MANAGER-------------------------------------------------------------------------------------------------//
 
 
@@ -162,7 +201,7 @@ Route::group([
     'middleware' => 'App\Http\Middleware\AdminMiddleware'
 ], function () {
 
-    Route::get('/dashboard', 'AdminPanelController@index')->middleware('verified')->name('admin.dashboard');
+    Route::get('/{id}/dashboard', 'AdminPanelController@index')->middleware('verified')->name('admin.dashboard');
     //--------Export------------------------//
 
     Route::get('/users/export', 'UserController@all')->middleware('verified')->name('admin.export.user');
@@ -179,6 +218,7 @@ Route::group([
 
     //--------Managing Users------------------------//
     Route::get('/member/lists', 'AdminPanelController@users')->middleware('verified');
+    Route::post('/member/lists', 'AdminPanelController@searchFullText')->middleware('verified')->name('search');
     Route::get('/member/{id}/edit', 'AdminPanelController@editmember')->middleware('verified');
     Route::post('/member/{id}/confirm', 'AdminPanelController@confirmMember')->middleware('verified');
     Route::post('/member/{id}/update', 'AdminPanelController@updateusers')->middleware('verified');
@@ -196,7 +236,7 @@ Route::group([
     //--------Managing Managers------------------------//
 
     //--------Managing Admins------------------------//
-    Route::get('/lists', 'AdminPanelController@admins')->middleware('verified');
+    Route::get('/{id}/lists', 'AdminPanelController@admins')->middleware('verified');
     Route::get('/admin/{id}/edit', 'AdminPanelController@editadmin')->middleware('verified');
     Route::post('/admin/{id}/confirm', 'AdminPanelController@confirmforAdmin')->middleware('verified');
     Route::post('/admin/{id}/update', 'AdminPanelController@updateadmins')->middleware('verified');
@@ -253,6 +293,85 @@ Route::group([
 
     Route::get('/restore', 'ForumController@restore')->middleware('verified')->name('admin.forum.restore');
     //--------Forum------------------------//
+});
+
+Route::group([
+    'prefix' => 'admin/Community',
+    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+], function () {
+
+    //--------Community------------------------//
+    Route::get('/community', 'CommunityController@index')->middleware('verified')->name('community.homepage');
+
+    Route::get('/community/{id}', 'CommunityController@show')->middleware('verified')->name('community.show');
+
+    Route::get('/add', 'CommunityController@create')->middleware('verified')->name('admin.community.add');
+
+    Route::post('/create', 'CommunityController@store')->middleware('verified')->name('admin.community.create');
+
+    Route::get('/{id}/edit', 'CommunityController@edit')->middleware('verified')->name('admin.community.edit');
+
+    Route::post('/{id}/update', 'CommunityController@update')->middleware('verified')->name('admin.community.update');
+
+    Route::get('/{id}/delete', 'CommunityController@destroy')->middleware('verified')->name('admin.community.delete');
+
+    Route::get('/{id}/restore', 'CommunityController@restore')->middleware('verified')->name('admin.community.restore');
+ 
+    //--------Community------------------------//
+});
+
+Route::group([
+    'prefix' => 'admin/{id}/Post',
+    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::post('/create', 'PostController@store')->middleware('verified')->name('admin.post.create');
+
+    Route::get('/edit/{postid}', 'PostController@edit')->middleware('verified')->name('admin.post.edit');
+
+    Route::post('/update/{postid}', 'PostController@update')->middleware('verified')->name('admin.post.update');
+
+    Route::get('/delete/{postid}', 'PostController@destroy')->middleware('verified')->name('admin.post.delete');
+
+    Route::get('/restore/{postid}', 'PostController@restore')->middleware('verified')->name('admin.post.restore');
+ 
+    //--------Post------------------------//
+});
+
+Route::group([
+    'prefix' => 'admin/{postid}/Comment',
+    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::post('/create', 'CommentController@store')->middleware('verified')->name('admin.comment.create');
+
+    Route::get('/edit/{commentid}', 'CommentController@edit')->middleware('verified')->name('admin.comment.edit');
+
+    Route::post('/update/{commentid}', 'CommentController@update')->middleware('verified')->name('admin.comment.update');
+
+    Route::get('/delete/{commentid}', 'CommentController@destroy')->middleware('verified')->name('admin.comment.delete');
+
+    Route::get('/restore/{commentid}', 'CommentController@restore')->middleware('verified')->name('admin.comment.restore');
+ 
+    //--------Post------------------------//
+});
+
+Route::group([
+    'prefix' => 'admin/{postid}/like',
+    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::get('/like', 'LikeController@like')->middleware('verified')->name('admin.like.post');
+
+    Route::get('/unlike', 'UnlikeController@unlike')->middleware('verified')->name('admin.unlike.post');
+ 
+    //--------Post------------------------//
 });
 //--------For ADMIN-------------------------------------------------------------------------------------------------//
 

@@ -66,9 +66,8 @@ class ForumController extends Controller
         $forum->category_id = $category->id;
         $forum->save();
 
-        $forums = $this->forumRepo->getForums($category->id);
-
-        return view('confirms.Category.Forum.homepage', compact('category', 'forums'));
+        return redirect()->route('category.index',$category->id);
+        
     }
 
     /**
@@ -121,8 +120,8 @@ class ForumController extends Controller
         $forum->update();
 
         $category = $this->cateRepo->showcategory($forum->category_id);
-        $forums = $this->forumRepo->getForums($category->id);
-         return view('confirms.Category.Forum.homepage', compact('category', 'forums'));
+
+        return redirect()->route('category.index',$category->id);
     }
 
     /**
@@ -137,8 +136,8 @@ class ForumController extends Controller
         $this->forumRepo->deleteForums($forum->id);
         
         $category = $this->cateRepo->showcategory($forum->category_id);
-        $forums = $this->forumRepo->getForums($category->id);
-         return view('confirms.Category.Forum.homepage', compact('category', 'forums'));
+
+         return redirect()->route('category.index',$category->id);
     }
 
     public function restore($id)
@@ -150,9 +149,7 @@ class ForumController extends Controller
         
         $category = $this->cateRepo->showcategory($forum->category_id);
         
-        $forums = $this->forumRepo->getForums($category->id);
-        
-         return view('confirms.Category.Forum.homepage', compact('category', 'forums'));
+         return redirect()->route('category.index',$category->id);
     }
     
 }

@@ -33,7 +33,7 @@
 
                     </div>
                 </div>
-
+            <?php   $forums = App\Forum::get()->where('category_id',$category->id);?>
                 <ol class="list-group">
                     @foreach($forums as $forum)
                     <li class="list-group-item">

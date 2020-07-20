@@ -14,6 +14,9 @@
                 <button type="button" class="btn btn-primary">Add Thread</button>
             </a>
             @else
+            <a href="{{ route('admin.tag.add')}}">
+                <button type="button" class="btn btn-primary">Add Tag</button>
+            </a>
             <a href="{{ route('admin.thread.add', ['id'=> $forum->id])}}">
                 <button type="button" class="btn btn-primary">Add Thread</button>
             </a>

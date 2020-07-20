@@ -4,16 +4,33 @@
 
 
 use App\Thread;
+
+
 use Faker\Generator as Faker;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+
 
 $factory->define(Thread::class, function (Faker $faker) {
+
+    // $filepath = storage_path('app/public/thread/'.$faker->title.'/');
+    //     if(!File::exists( $filepath)){ 
+    //         File::makeDirectory( $filepath);
+    //     }
+    //     else
+    //     {
+    //         unlink($filepath);
+    //         File::makeDirectory( $filepath);
+    //     }
+    
     return [
-        'user_id' => rand(1,100),
-        'tag_id' =>rand(1,100),
-        'forum_id' => rand(1,100),
+
+        'user_id' => rand(1,10),
+        'tag_id' =>rand(1,10),
+        'forum_id' => rand(1,10),
         'title' => $faker->title,
         'detail' => $faker->paragraph,
         'status' => 'public',
+        
+        // 'thumbnail' => $faker->image($filepath,640,480,null,false),
     ];
 });

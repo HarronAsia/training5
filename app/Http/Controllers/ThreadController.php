@@ -162,18 +162,18 @@ class ThreadController extends Controller
 
             if (!file_exists($path . $filename)) {
 
-                $data['thumbnail']->move($path, $filename);
+                $value->thumbnail->move($path, $filename);
             } else if (!file_exists($path . $old_thumbnail)) {
 
-                $data['thumbnail']->move($path, $filename);
+                $value->thumbnail->move($path, $filename);
             } else {
 
                 unlink($path . $old_thumbnail);
-                $data['thumbnail']->move($path, $filename);
+                $value->thumbnail->move($path, $filename);
             }
         }
-        $data['thumbnail'] = $filename;
-        Session::put('thumbnail', $data['thumbnail']);
+        $value->thumbnail = $filename;
+        Session::put('thumbnail', $value->thumbnail);
 
         $thread = $value = Session::all();
 

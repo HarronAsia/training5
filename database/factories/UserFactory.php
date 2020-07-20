@@ -22,15 +22,16 @@ use Carbon\Carbon;
 $factory->define(User::class, function (Faker $faker) {
     return [
         'name' => $faker->name,
-        'email' => $faker->unique()->email, 
+        'email' => $faker->unique()->safeEmail, 
         'password' => bcrypt('123456'),
         'dob' => Carbon::now(),
         'number' => $faker->phoneNumber,
         'role' => 'manager',
         'email_verified_at' => Carbon::now(),
         'remember_token' => Str::random(10),
-
+    
     ];
+
 });
 
 

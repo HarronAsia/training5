@@ -59,8 +59,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($name,$id)
     {
+        
         $user = $this->userRepo->showUser($id);
 
         return view('confirms.User.profile', compact('user'));
@@ -72,7 +73,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($name,$id)
     {
         $user = $this->userRepo->showUser($id);
         return view('confirms.User.edit', compact('user'));
@@ -80,8 +81,9 @@ class UserController extends Controller
 
     public function confirm(StoreUser $request, $id)
     {
+        
         $data = $request->validated();
-
+        
         $value = $this->userRepo->showUser($id);
 
         Session::put('name', $data['name']);
@@ -105,7 +107,7 @@ class UserController extends Controller
         Session::put('photo', $data['photo']);
 
         $user = $value = Session::all();
-
+        
         return view('confirms.User.confirm_page', compact('user'));
     }
 
@@ -118,7 +120,7 @@ class UserController extends Controller
      */
     public function update($id)
     {
-
+        
         $value = $this->userRepo->showUser($id);
 
         $value->name = Session::get('name');

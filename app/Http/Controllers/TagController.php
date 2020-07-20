@@ -62,7 +62,7 @@ class TagController extends Controller
         
 
         $value->save();
-        return Redirect('/');
+        return redirect()->back();
     }
 
     /**
