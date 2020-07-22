@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Post;
-use App\Community;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
+use App\Models\Community;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Requests\StoreCommunity;
+
+use App\Notifications\Community\AddCommunityNotification;
+use App\Notifications\Community\EditCommunityNotification;
+use App\Notifications\Community\DeleteCommunityNotification;
+use App\Notifications\Community\RestoreCommunityNotification;
+
 use App\Repositories\Post\PostRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Repositories\Comment\CommentRepositoryInterface;
@@ -20,7 +26,7 @@ class CommunityController extends Controller
     protected $postRepo;
     protected $userRepo;
     protected $commRepo;
-    
+
     public function __construct(CommunityRepositoryInterface $commuRepo, PostRepositoryInterface $postRepo, UserRepositoryInterface $userRepo, CommentRepositoryInterface $commRepo)
     {
         $this->middleware('auth');
@@ -39,7 +45,8 @@ class CommunityController extends Controller
     {
 
         $communities = $this->commuRepo->showall();
-        return view('confirms.Community.homepage', compact('communities'));
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        return view('confirms.Community.homepage', compact('communities', 'notifications'));
     }
 
     /**
@@ -49,7 +56,8 @@ class CommunityController extends Controller
      */
     public function create()
     {
-        return view('confirms.Community.add_community');
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        return view('confirms.Community.add_community', compact('notifications'));
     }
 
     /**
@@ -80,9 +88,8 @@ class CommunityController extends Controller
         $community->banner = $data['banner'];
 
         $community->save();
-
+        $community->notify(new AddCommunityNotification());
         return redirect()->route('community.homepage');
-        
     }
 
     /**
@@ -94,16 +101,13 @@ class CommunityController extends Controller
     public function show($id)
     {
 
-        if (Auth::user()->role == 'manager') {
-            $community = $this->commuRepo->showcommunity($id);
-            $posts = $this->postRepo->showall($community->id);
-            return view('confirms.Community.index', compact('community', 'posts'));
-        } else {
-            $community = $this->commuRepo->showcommunity($id);
-            $posts = $this->postRepo->showallforAdmin($community->id);
-            return view('confirms.Community.index', compact('community', 'posts'));
-        }
-              
+
+        $community = $this->commuRepo->showcommunity($id);
+        $posts = $this->postRepo->showall($community->id);
+
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+
+        return view('confirms.Community.index', compact('community', 'posts', 'notifications'));
     }
 
     /**
@@ -115,7 +119,8 @@ class CommunityController extends Controller
     public function edit($id)
     {
         $community = $this->commuRepo->showcommunity($id);
-        return view('confirms.Community.edit_community', compact('community'));
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        return view('confirms.Community.edit_community', compact('community', 'notifications'));
     }
 
     /**
@@ -128,7 +133,7 @@ class CommunityController extends Controller
     public function update(StoreCommunity $request, $id)
     {
         $data = $request->validated();
-        
+
         $community = $this->commuRepo->showcommunity($id);
 
         $community->title = $data['title'];
@@ -138,14 +143,14 @@ class CommunityController extends Controller
         if ($request->hasFile('banner')) {
 
             $community->banner =  $data['banner'];
-            
+
             $extension =  $community->banner->getClientOriginalExtension();
-            
-            
+
+
             $filename =  $data['title'] . '.' . $extension;
-            
+
             $path = storage_path('app/public/community/' . $data['title'] . '/');
-            
+
             if (!file_exists($path . $filename)) {
 
                 $community->banner->move($path, $filename);
@@ -160,7 +165,7 @@ class CommunityController extends Controller
         }
         $community->banner = $filename;
         $community->update();
-
+        $community->notify(new EditCommunityNotification);
         return redirect()->route('community.homepage');
     }
 
@@ -172,18 +177,19 @@ class CommunityController extends Controller
      */
     public function destroy($id)
     {
-        
-        
-        $category = $this->commuRepo->showcommunity($id);
-        $this->commuRepo->deletecommunity($category->id);
-        return redirect()->route('community.homepage');
+  
+        $this->commuRepo->deletecommunity($id);
+        $community = $this->commuRepo->getTrash($id);
+        $community->notify(new DeleteCommunityNotification());
+        return redirect()->back();
     }
 
     public function restore($id)
     {
-        
-        
+
         $this->commuRepo->restorecommunity($id);
-        return redirect()->route('community.homepage');
+        $community = $this->commuRepo->showcommunity($id);
+        $community->notify(new RestoreCommunityNotification());
+        return redirect()->back();
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,6 +16,6 @@ class Tag extends Model
 
     public function threads()
     {
-        return $this->belongsToMany(Thread::class);
+        return $this->belongsToMany('App\Models\Thread');
     }
 }

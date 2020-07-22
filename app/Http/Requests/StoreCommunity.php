@@ -25,7 +25,7 @@ class StoreCommunity extends FormRequest
     {
         return [
             'title' => 'required',
-            'banner'=> 'required',
+            'banner'=> 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 }

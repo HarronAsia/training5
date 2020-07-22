@@ -5,56 +5,64 @@ namespace App\Http\Controllers;
 use Excel;
 
 use App\User;
-use App\Thread;
-use App\Forum;
+use App\Models\Forum;
+use App\Models\Thread;
 
 use Illuminate\Http\Request;
 use App\Exports\ThreadsExport;
 
 use App\Imports\ThreadsImport;
 use App\Http\Requests\StoreThread;
-use Illuminate\Support\Facades\Auth;
+use App\Notifications\Forum\DeleteForumNotification;
+use App\Notifications\Forum\RestoreForumNotification;
+use Illuminate\Support\Facades\DB;
 
+
+use App\Notifications\Thread\AddThreadNotification;
+use App\Notifications\Thread\EditThreadNotification;
+use App\Notifications\Thread\DeleteThreadNotification;
+use App\Notifications\Thread\RestoreThreadNotification;
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use App\Repositories\Forum\ForumRepositoryInterface;
 use App\Repositories\Thread\ThreadRepositoryInterface;
 use App\Repositories\Thread\Tag\TagRepositoryInterface;
-use App\Repositories\Forum\ForumRepositoryInterface;
+use App\Repositories\Comment\CommentRepositoryInterface;
+
 class ThreadController extends Controller
 {
     protected $threadRepo;
     protected $tagRepo;
     protected $forumRepo;
+    protected $commRepo;
 
-    public function __construct(ThreadRepositoryInterface $threadRepo, TagRepositoryInterface $tagRepo,ForumRepositoryInterface $forumRepo)
+    public function __construct(ThreadRepositoryInterface $threadRepo, TagRepositoryInterface $tagRepo, ForumRepositoryInterface $forumRepo, CommentRepositoryInterface $commRepo)
     {
         $this->threadRepo = $threadRepo;
         $this->tagRepo = $tagRepo;
         $this->forumRepo = $forumRepo;
+        $this->commRepo = $commRepo;
     }
 
     public function index($id)
     {
-        if (Auth::user()->role == 'manager') {
-            $forum = $this->forumRepo->showforum($id);
-            
-            $threads = $this->threadRepo->getallThreads($forum->id);
-            return view('confirms.Forum.Thread.homepage', compact('threads','forum'));
-        } else {
-            $forum = $this->forumRepo->showforum($id);
-            
-            $threads = $this->threadRepo->getallThreadsforAdmin($forum->id);
-            
-            return view('confirms.Forum.Thread.homepage', compact('threads','forum'));
-        }
+
+        $forum = $this->forumRepo->showforum($id);
+        
+        $threads = $this->threadRepo->getallThreads($forum->id);
+        
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        return view('confirms.Forum.Thread.homepage', compact('threads', 'forum', 'notifications'));
     }
 
     public function create($id)
     {
-        $forum = Forum::findOrFail($id);
+        $forum = $this->forumRepo->showforum($id);
         $threads = $this->threadRepo->addThread();
         $tags = $this->tagRepo->showall();
-
-        return view('confirms.Thread.add_thread', compact('threads', 'tags', 'forum'));
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        return view('confirms.Thread.add_thread', compact('threads', 'tags', 'forum', 'notifications'));
     }
 
     //Confirm Add thread---------------------------------------------------------------
@@ -91,8 +99,8 @@ class ThreadController extends Controller
         Session::put('thumbnail', $data['thumbnail']);
 
         $thread = $value = Session::all();
-
-        return view('confirms.Thread.confirm_add_thread', compact('thread', 'tag', 'forum'));
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        return view('confirms.Thread.confirm_add_thread', compact('thread', 'tag', 'forum', 'notifications'));
     }
     //Confirm Add thread-------------------------------------------------------------
 
@@ -109,33 +117,30 @@ class ThreadController extends Controller
         $thread->thumbnail  = Session::get('thumbnail');
 
         $thread->save();
+        $thread->notify(new AddThreadNotification());
 
-        if (Auth::user()->role == 'manager') {
-            $forum = Forum::findOrFail($id);
-            $threads = $this->threadRepo->getallThreads($forum->id);
-            return view('confirms.Forum.Thread.homepage', compact('threads', 'forum'));
-        } else {
-            $forum = Forum::findOrFail($id);
-            $threads = $this->threadRepo->getallThreadsforAdmin($forum->id);
-            return view('confirms.Forum.Thread.homepage', compact('threads', 'forum'));
-        }
+        return redirect()->route('thread.show', $id);
     }
 
     public function edit($id, $threadid)
     {
-        $forum = Forum::findOrFail($id);
+        $forum = $this->forumRepo->showforum($id);
         $thread = $this->threadRepo->showThread($threadid);
         $tags = $this->tagRepo->showall();
         $threadtag = $this->tagRepo->getTag($thread->tag_id);
-        return view('confirms.Thread.edit', compact('thread', 'tags', 'threadtag', 'forum'));
+
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        return view('confirms.Thread.edit', compact('thread', 'tags', 'threadtag', 'forum', 'notifications'));
     }
 
     public function confirmupdate(StoreThread $request, $id, $threadid)
     {
 
         $data = $request->validated();
-        $forum = Forum::findOrFail($id);
+
+        $forum = $this->forumRepo->showforum($id);
         $value = $this->threadRepo->showThread($threadid);
+
         $tag = $this->tagRepo->getTag($data['tag_id']);
 
         $data['id'] =    $value->id;
@@ -176,8 +181,8 @@ class ThreadController extends Controller
         Session::put('thumbnail', $value->thumbnail);
 
         $thread = $value = Session::all();
-
-        return view('confirms.Thread.confirm_edit_thread', compact('thread', 'tag', 'forum'));
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        return view('confirms.Thread.confirm_edit_thread', compact('thread', 'tag', 'forum', 'notifications'));
     }
 
     public function update($id, $threadid)
@@ -193,28 +198,26 @@ class ThreadController extends Controller
         $value->thumbnail  = Session::get('thumbnail');
 
         $value->update();
+        $value->notify(new EditThreadNotification());
 
-        if (Auth::user()->role == 'manager') {
-            $forum = Forum::findOrFail($id);
-            $threads = $this->threadRepo->getallThreads($forum->id);
-            return view('confirms.Forum.Thread.homepage', compact('threads', 'forum'));
-        } else {
-            $forum = Forum::findOrFail($id);
-            $threads = $this->threadRepo->getallThreadsforAdmin($forum->id);
-            return view('confirms.Forum.Thread.homepage', compact('threads', 'forum'));
-        }
+        return redirect()->route('thread.show', $id);
     }
 
 
 
-    public function show($id)
+    public function show($id, $threadid)
     {
-        $thread = $this->threadRepo->showThread($id);
+        $thread = $this->threadRepo->getThread($threadid);
 
-        $user = User::findOrFail($thread->user_id);
+        $value = $this->threadRepo->showThread($threadid);
 
-        $tag = $this->tagRepo->getTag($thread->tag_id);
-        return view('confirms.Thread.index', compact('thread', 'user', 'tag'));
+        $user = User::findOrFail($value->user_id);
+
+        $tag = $this->tagRepo->getTag($value->tag_id);
+
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+
+        return view('confirms.Thread.index', compact('thread', 'user', 'tag', 'notifications'));
     }
 
 
@@ -223,21 +226,19 @@ class ThreadController extends Controller
     {
 
         $this->threadRepo->deleteThreads($threadid);
-        $forum = Forum::findOrFail($id);
-        $threads = $this->threadRepo->getallThreadsforAdmin($forum->id);
+        $thread = $this->threadRepo->getTrash($threadid);
+        $thread->notify(new DeleteThreadNotification());
 
-        return view('confirms.Forum.Thread.homepage', compact('forum', 'threads'));
+        return redirect()->route('thread.show', $id);
     }
 
     public function restore($id, $threadid)
     {
 
         $this->threadRepo->restoreThreads($threadid);
-
-        $forum = Forum::findOrFail($id);
-        
-        $threads = $this->threadRepo->getallThreadsforAdmin($forum->id);
-        return view('confirms.Forum.Thread.homepage', compact('forum', 'threads'));
+        $thread = $this->threadRepo->showThread($threadid);
+        $thread->notify(new RestoreThreadNotification());
+        return redirect()->route('thread.show', $id);
     }
 
 

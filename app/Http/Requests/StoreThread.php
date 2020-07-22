@@ -23,14 +23,18 @@ class StoreThread extends FormRequest
      */
     public function rules()
     {
-        //dd(request()->all());
+        // dd(request()->all());
+        $this->redirect = 'admin/'.request()->forum_id.'/'.'thread/'.request()->id.'/edit' ;
         return [
             
+
             'title' => 'required',
             'detail' => 'required',
             'tag_id' => 'required',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'status' => 'required',
+            
         ];
+        
     }
 }

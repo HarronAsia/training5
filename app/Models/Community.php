@@ -1,20 +1,19 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
-use App\Forum;
 
-class Category extends Model
+class Community extends Model
 {
     use SoftDeletes,Notifiable;
 
-    protected $fillable = ['name','detail'];
+    protected $fillable = ['title','banner'];
 
-    public function forums()
+    public function posts()
     {
-        return $this->hasMany('App\Forum');
+        $this->hasMany('App\Models\Post');
     }
 }

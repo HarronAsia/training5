@@ -11,7 +11,7 @@
             <div class="form-group">
                 <label for="comment_image">Upload Your Comment image</label>
                 <div>
-                    <img src="{{asset('storage/comment/'.$comment->user_id.'/'.$comment->comment_image)}}" alt="image" style="max-width: 500px ; max-height:500px;">
+                    <img src="{{asset('storage/comment/'.Auth::user()->name.'/'.$comment->comment_image)}}" alt="image" style="max-width: 500px ; max-height:500px;">
                     &nbsp;&nbsp;<i class="fa fa-arrow-right" style="font-size:48px;"></i>&nbsp;&nbsp;
                     <img id="image_preview_container2" src="#" alt="preview image" style="max-width: 500px ; max-height:500px;">
                 </div>

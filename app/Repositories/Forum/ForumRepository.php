@@ -3,31 +3,24 @@
 namespace App\Repositories\Forum;
 
 use App\Repositories\BaseRepository;
-use App\Forum;
-use Illuminate\Support\Facades\DB;
+use App\Models\Forum;
 
 class ForumRepository extends BaseRepository implements ForumRepositoryInterface
 {
     //lấy model tương ứng
     public function getModel()
     {
-        return \App\Forum::class;
+        return \App\Models\Forum::class;
     }
 
-    public function showall()
+    public function showall($id)
     {
-        return $this->model = DB::table('forums')->paginate(10);
+        return $this->model = Forum::with('threads')->withTrashed()->where('category_id',$id)->paginate(5);
     }
 
     public function showforum($id)
     {
         return $this->model = Forum::findOrFail($id);
-    }
-
-    public function getForums($id)
-    {
-
-        return $this->model =  DB::table('forums')->where('category_id', '=', $id)->paginate(10);
     }
 
     public function deleteForums($id)
@@ -41,8 +34,12 @@ class ForumRepository extends BaseRepository implements ForumRepositoryInterface
     public function restoreForums($id)
     {
        
-        return $this->model = Forum::onlyTrashed()->where('id',$id)->restore();
-            
+        return $this->model = Forum::onlyTrashed()->where('id',$id)->restore();    
+    }
+
+    public function getTrash($id)
+    {
         
+        return $this->model = Forum::withTrashed()->find($id);
     }
 }

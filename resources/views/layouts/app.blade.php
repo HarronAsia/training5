@@ -48,11 +48,36 @@
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <span class="sr-only">Toggle navigation</span>
                 </a>
-                <!-- Navbar Right Menu -->
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
 
+                        <!-- User Account Menu -->
+                        <li class="dropdown user user-menu">
+                            <!-- Menu Toggle Button -->
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="fa fa-bell-o" style="color: black;"></i>
+                                <span class=" hidden-xs" style="color: red;">{{$notifications->count()}}</span>
+                            </a>
 
+                            <ul class="dropdown-menu">
+                                @foreach($notifications as $notification)
+
+                                <li class="user-footer">
+                                    <p>{{$notification->notifiable_type}}</p>
+                                    <p>{{$notification->data}}</p>
+                                    <a href="{{ route('notification.read', ['id'=> $notification->id])}}">
+                                        <p >&times;</p>
+                                    </a>
+                                </li>
+                                <br>
+                                @endforeach
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Navbar Right Menu -->
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
 
 
                         <!-- User Account Menu -->
@@ -245,7 +270,6 @@
 
             //Preview Image-----------------------------------------------------------------------//
 
- 
 
         });
     </script>

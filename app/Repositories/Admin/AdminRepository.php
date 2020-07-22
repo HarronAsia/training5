@@ -15,7 +15,7 @@ class AdminRepository extends BaseRepository implements AdminRepositoryInterface
     //lấy model tương ứng
     public function getModel()
     {
-        return \App\AdminPanel::class;
+        return \App\Models\AdminPanel::class;
     }
 
     //*===============Count=============================*//

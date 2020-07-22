@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
-use App\Profile;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;

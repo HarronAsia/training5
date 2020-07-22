@@ -3,13 +3,20 @@
 namespace App\Http\Controllers;
 
 
-use App\Forum;
-use Illuminate\Http\Request;
+use App\Models\Forum;
+
 use App\Http\Requests\StoreForum;
+
+use App\Notifications\Forum\AddForumNotification;
+use App\Notifications\Forum\DeleteForumNotification;
+use App\Notifications\Forum\EditForumNotification;
+use App\Notifications\Forum\RestoreForumNotification;
+
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Repositories\Forum\ForumRepositoryInterface;
 use App\Repositories\Thread\ThreadRepositoryInterface;
 use App\Repositories\Category\CategoryRepositoryInterface;
-use App\Repositories\Forum\ForumRepositoryInterface;
 
 
 class ForumController extends Controller
@@ -42,9 +49,11 @@ class ForumController extends Controller
      */
     public function create($id)
     {
-        
+
         $category = $this->cateRepo->showcategory($id);
-        return view('confirms.Forum.add_forum', compact('category'));
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+
+        return view('confirms.Forum.add_forum', compact('category', 'notifications'));
     }
 
     /**
@@ -65,9 +74,8 @@ class ForumController extends Controller
         $forum->title = $data['title'];
         $forum->category_id = $category->id;
         $forum->save();
-
-        return redirect()->route('category.index',$category->id);
-        
+        $forum->notify(new AddForumNotification());
+        return redirect()->route('category.index', $category->id);
     }
 
     /**
@@ -79,15 +87,12 @@ class ForumController extends Controller
     public function show($id, $threadid)
     {
 
-        if (Auth::user()->role == 'manager') {
-            $forum = $this->forumRepo->showforum($id);
-            $threads = $this->threadRepo->getallThreads($threadid);
-            return view('confirms.Forum.Thread.homepage', compact('threads', 'forum'));
-        } else {
-            $forum = $this->forumRepo->showforum($id);
-            $threads = $this->threadRepo->getallThreadsforAdmin($threadid);
-            return view('confirms.Forum.Thread.homepage', compact('threads', 'forum'));
-        }
+
+        $forum = $this->forumRepo->showforum($id);
+        $threads = $this->threadRepo->getallThreads($threadid);
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+
+        return view('confirms.Forum.Thread.homepage', compact('threads', 'forum', 'notifications'));
     }
 
     /**
@@ -99,7 +104,8 @@ class ForumController extends Controller
     public function edit($id)
     {
         $forum = $this->forumRepo->showforum($id);
-        return view('confirms.Category.Forum.edit', compact('forum'));
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        return view('confirms.Category.Forum.edit', compact('forum', 'notifications'));
     }
 
     /**
@@ -118,10 +124,10 @@ class ForumController extends Controller
         $forum->title = $data['title'];
 
         $forum->update();
-
+        $forum->notify(new EditForumNotification());
         $category = $this->cateRepo->showcategory($forum->category_id);
 
-        return redirect()->route('category.index',$category->id);
+        return redirect()->route('category.index', $category->id);
     }
 
     /**
@@ -132,24 +138,24 @@ class ForumController extends Controller
      */
     public function destroy($id)
     {
-        $forum = $this->forumRepo->showforum($id);
-        $this->forumRepo->deleteForums($forum->id);
         
+        $this->forumRepo->deleteForums($id);
+        $forum = $this->forumRepo->getTrash($id);
+        $forum->notify(new DeleteForumNotification());
         $category = $this->cateRepo->showcategory($forum->category_id);
 
-         return redirect()->route('category.index',$category->id);
+        return redirect()->route('category.index', $category->id);
     }
 
     public function restore($id)
     {
-        
+
         $this->forumRepo->restoreForums($id);
-        
-        $forum = $this->forumRepo->showforum( $id);
-        
+
+        $forum = $this->forumRepo->showforum($id);
+        $forum->notify(new RestoreForumNotification());
         $category = $this->cateRepo->showcategory($forum->category_id);
         
-         return redirect()->route('category.index',$category->id);
+        return redirect()->route('category.index', $category->id);
     }
-    
 }

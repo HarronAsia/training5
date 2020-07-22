@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Category;
-use App\Repositories\Category\CategoryRepositoryInterface;
-use App\Repositories\Forum\ForumRepositoryInterface;
+use App\Models\Category;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreCategory;
+
+use App\Notifications\Category\AddCategoryNotification;
+use App\Notifications\Category\DeleteCategoryNotification;
+use App\Notifications\Category\EditCategoryNotification;
+use App\Notifications\Category\RestoreCategoryNotification;
+
+use App\Repositories\Forum\ForumRepositoryInterface;
+use App\Repositories\Category\CategoryRepositoryInterface;
+
 class CategoryController extends Controller
 {
 
@@ -38,7 +45,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('confirms.Category.add_category');
+        $notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
+        return view('confirms.Category.add_category',compact('notifications'));
     }
 
     /**
@@ -57,7 +65,11 @@ class CategoryController extends Controller
         $category->detail = $data['detail'];
 
         $category->save();
-        return Redirect('/');
+
+      
+        $category->notify(new AddCategoryNotification);
+        $notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
+        return Redirect('/')->with('notifications',$notifications);
     }
 
     /**
@@ -69,9 +81,9 @@ class CategoryController extends Controller
     public function show($id)
     {
         $category = $this->cateRepo->showcategory($id);
-        $forums = $this->forumRepo->getForums($category->id);
-        
-        return view('confirms.Category.Forum.homepage',compact('category','forums'));
+        $forums = $this->forumRepo->showall($category->id);
+        $notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
+        return view('confirms.Category.Forum.homepage',compact('category','forums','notifications'));
     }
 
     /**
@@ -82,7 +94,9 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
-        //
+        $category = $this->cateRepo->showcategory($id);
+        $notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
+        return view('confirms.Category.edit_category',compact('category','notifications'));
     }
 
     /**
@@ -92,9 +106,18 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreCategory $request,$id)
     {
-        //
+        $data = $request->validated();
+
+        $category = $this->cateRepo->showcategory($id);
+
+        $category->name = $data['name'];
+        $category->detail = $data['detail'];
+
+        $category->save();
+        $category->notify(new EditCategoryNotification());
+        return redirect('/');
     }
 
     /**
@@ -105,6 +128,18 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $this->cateRepo->deletecategory($id);
+        $category = $this->cateRepo->getTrash($id);
+        
+        $category->notify(new DeleteCategoryNotification());
+        return redirect('/');
+    }
+
+    public function restore($id)
+    {
+        $this->cateRepo->restorecategory($id);
+        $category = $this->cateRepo->showcategory($id);
+        $category->notify(new RestoreCategoryNotification());
+        return redirect('/');
     }
 }

@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTag;
 use App\Repositories\Thread\Tag\TagRepositoryInterface;
-use App\Tag;
-use App\Thread;
+use App\Models\Tag;
+use App\Notifications\AddTagNotification;
+use Illuminate\Support\Facades\DB;
+
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
+
 
 class TagController extends Controller
 {
@@ -39,9 +39,9 @@ class TagController extends Controller
     public function create()
     {
 
-        
-
-        return view('confirms.Thread.Tag.add_tag');
+        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        $tags = $this->tagRepo->showall();
+        return view('confirms.Thread.Tag.add_tag',compact('notifications','tags'));
     }
 
     /**
@@ -56,12 +56,13 @@ class TagController extends Controller
         $data = $request->validated();
         
 
-        $value = new Tag();
+        $tag = new Tag();
 
-        $value->name = $data['name'];
+        $tag->name = $data['name'];
         
 
-        $value->save();
+        $tag->save();
+        $tag->notify(new AddTagNotification());
         return redirect()->back();
     }
 

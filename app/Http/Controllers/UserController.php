@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Requests\StoreUser;
-use App\Repositories\User\UserRepositoryInterface;
-
+use Excel;
 use App\User;
 use App\Exports\UsersExport;
-use Excel;
+
+use Illuminate\Http\Request;
+use App\Http\Requests\StoreUser;
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Session;
+use App\Repositories\User\UserRepositoryInterface;
 
 class UserController extends Controller
 {
@@ -63,8 +64,8 @@ class UserController extends Controller
     {
         
         $user = $this->userRepo->showUser($id);
-
-        return view('confirms.User.profile', compact('user'));
+        $notifications = DB::table('notifications')->get();
+        return view('confirms.User.profile', compact('user','notifications'));
     }
 
     /**
@@ -76,7 +77,8 @@ class UserController extends Controller
     public function edit($name,$id)
     {
         $user = $this->userRepo->showUser($id);
-        return view('confirms.User.edit', compact('user'));
+        $notifications = DB::table('notifications')->get();
+        return view('confirms.User.edit', compact('user','notifications'));
     }
 
     public function confirm(StoreUser $request, $id)

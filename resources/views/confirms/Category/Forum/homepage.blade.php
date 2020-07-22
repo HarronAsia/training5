@@ -51,7 +51,7 @@
                                     <td><a href="{{ route('thread.show', ['id'=> $forum->id])}}">{{$forum->title}} </a></td>
                                     <td>
                                         @if($forum->deleted_at != NULL)
-                                        <div class="pull-left">
+                                        <div class="pull-right">
                                             <a href="{{ route('admin.forum.restore', ['id'=> $forum->id])}}">
                                                 <button type="button" class="btn btn-success btn-lg">
                                                     <i class="fa fa-undo"></i>
@@ -80,12 +80,12 @@
                                 <tr>
 
                                     <td>{{$forum->id}}</td>
-                                    <td>{{$forum->title}} </td>
+                                    <td><a href="{{ route('thread.show', ['id'=> $forum->id])}}">{{$forum->title}} </a></td>
                                     <td>
                                         @if($forum->deleted_at != NULL)
 
                                         @else
-                                        @can('updateforum', $thread)
+                                        @can('updateforum', $forum)
                                         <div class="pull-right">
                                             <a href="{{ route('manager.forum.edit', ['id'=> $forum->id])}}">
                                                 <button type="button" class="btn btn-info btn-lg">
@@ -95,11 +95,11 @@
                                         </div>
                                         @endcan
 
-                                        @cannot('updateforum', $thread)
+                                        @cannot('updateforum', $forum)
 
                                         @endcannot
 
-                                        @can('deleteforum', $thread)
+                                        @can('deleteforum', $forum)
                                         <div class="pull-right">
                                             <a href="{{ route('manager.forum.delete', ['id'=> $forum->id])}}">
                                                 <button type="button" class="btn btn-danger btn-lg">
@@ -109,7 +109,7 @@
                                         </div>
                                         @endcan
 
-                                        @cannot('deleteforum', $thread)
+                                        @cannot('deleteforum', $forum)
 
                                         @endcannot
 

@@ -5,11 +5,26 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Edit thread Page -->
+        
         <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
 
-        <form action="{{ route('admin.thread.update.confirm', ['id' => $forum->id ,'threadid' =>$thread->id])}} " method="POST" enctype="multipart/form-data">
-            
+        <form action="{{ route('admin.thread.update.confirm', ['id' => $forum->id ,'threadid' =>$thread->id])}}" method="POST" enctype="multipart/form-data" class="submit-to-confirm-thread">
+
             @csrf
+
+            <div class="form-group">
+
+                <input type="hidden" name="id" value="{{$thread->id}}">
+            </div>
+            <div class="form-group">
+
+                <input type="hidden" name="user_id" value="{{$thread->user_id}}">
+            </div>
+            <div class="form-group">
+
+                <input type="hidden" name="forum_id" value="{{$thread->forum_id}}">
+
+            </div>
 
             <div class="form-group">
                 <label for="thumbnail">Upload Your Image</label>
@@ -48,7 +63,7 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-default">Submit</button>
+            <button type="submit" class="btn btn-default confirm-thread">Submit</button>
         </form>
         <!--Edit thread Page -->
     </div>
@@ -61,10 +76,14 @@
     <div class="row">
         <!-- Edit thread Page -->
         <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
-        @if(Auth::user()->role == "manager")
-        <form action="{{ route('manager.thread.update.confirm', ['id' => $forum->id ,'threadid' =>$thread->id])}} " method="POST" enctype="multipart/form-data">
-            @endif
+
+        <form action="{{ route('manager.thread.update.confirm', ['id' => $forum->id ,'threadid' =>$thread->id])}} " method="POST" enctype="multipart/form-data" id="edit_thread">
+
             @csrf
+
+            <input type="hidden" name="id" value="{{$thread->id}}">
+            <input type="hidden" name="user_id" value="{{$thread->user_id}}">
+            <input type="hidden" name="forum_id" value="{{$thread->forum_id}}">
 
             <div class="form-group">
                 <label for="thumbnail">Upload Your Image</label>

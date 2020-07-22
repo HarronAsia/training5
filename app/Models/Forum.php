@@ -1,11 +1,11 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
-use App\Category;
+
 class Forum extends Model
 {
     use SoftDeletes,Notifiable;
@@ -14,6 +14,11 @@ class Forum extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo('App\Models\Category');
+    }
+
+    public function threads()
+    {
+        return $this->hasMany('App\Models\Thread');
     }
 }

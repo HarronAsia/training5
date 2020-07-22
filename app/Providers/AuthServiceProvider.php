@@ -2,8 +2,7 @@
 
 namespace App\Providers;
 
-use App\Thread;
-use App\Policies\ThreadPolicy;
+
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -15,7 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        Thread::class => ThreadPolicy::class,
+        
     ];
 
     /**

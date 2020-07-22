@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\AdminPanel;
+use App\Models\AdminPanel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreAdmin;

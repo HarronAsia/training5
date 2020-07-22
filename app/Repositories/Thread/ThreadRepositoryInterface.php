@@ -5,15 +5,17 @@ interface ThreadRepositoryInterface
 
     public function getallThreads($id);
 
-    public function getallThreadsforAdmin($id);
-
     public function addThread();
+
+    public function getThread($id);
 
     public function showThread($id);
 
     public function deleteThreads($id);
 
     public function restoreThreads($id);
+
+    public function getTrash($id);
 
     public function allThreads();
 

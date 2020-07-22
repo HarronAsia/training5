@@ -33,13 +33,15 @@ Auth::routes(['verify' => true]);
 
 Route::get('/', 'HomeController@index');
 
+Route::get('/{id}/mark-as-read', 'HomeController@readAt')->name('notification.read');
+
 Route::get('/{id}', 'CategoryController@show')->middleware('verified')->name('category.index');
 
 Route::get('/{id}/{forumid}', 'ForumController@show')->middleware('verified')->name('forum.show');
 
 Route::get('/{id}/thread/homepage', 'ThreadController@index')->middleware('verified')->name('thread.show');
 
-Route::get('/thread/{id}', 'ThreadController@show')->middleware('verified')->name('thread.detail');
+Route::get('/{id}/thread/homepage/{threadid}', 'ThreadController@show')->middleware('verified')->name('thread.detail');
 
 //--------Viewable Page------------------------//
 
@@ -126,6 +128,19 @@ Route::group([
 });
 
 Route::group([
+    'prefix' => 'manager/Community',
+    'middleware' => 'App\Http\Middleware\ManagerMiddleware'
+], function () {
+
+    //--------Community------------------------//
+    Route::get('/community', 'CommunityController@index')->middleware('verified')->name('manager.community.homepage');
+
+    Route::get('/community/{id}', 'CommunityController@show')->middleware('verified')->name('manager.community.show');
+ 
+    //--------Community------------------------//
+});
+
+Route::group([
     'prefix' => 'manager/{id}/Post',
     'middleware' => 'App\Http\Middleware\ManagerMiddleware'
 ], function () {
@@ -158,6 +173,38 @@ Route::group([
     Route::post('/update/{commentid}', 'CommentController@update')->middleware('verified')->name('manager.comment.update');
 
     Route::get('/delete/{commentid}', 'CommentController@destroy')->middleware('verified')->name('manager.comment.delete');
+ 
+    //--------Post------------------------//
+});
+
+Route::group([
+    'prefix' => 'manager/thread/{threadid}/Comment',
+    'middleware' => 'App\Http\Middleware\ManagerMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::post('/create', 'CommentController@store2')->middleware('verified')->name('manager.comment.create.thread');
+
+    Route::get('/edit/{commentid}', 'CommentController@edit2')->middleware('verified')->name('manager.comment.edit.thread');
+
+    Route::post('/update/{commentid}', 'CommentController@update2')->middleware('verified')->name('manager.comment.update.thread');
+
+    Route::get('/delete/{commentid}', 'CommentController@destroy')->middleware('verified')->name('manager.comment.delete.thread');
+ 
+    //--------Post------------------------//
+});
+
+Route::group([
+    'prefix' => 'admin/{threadid}/like',
+    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::get('/like', 'LikeController@like')->middleware('verified')->name('admin.like.post.thread');
+
+    Route::get('/unlike', 'UnlikeController@unlike')->middleware('verified')->name('admin.unlike.post.thread');
  
     //--------Post------------------------//
 });
@@ -270,6 +317,14 @@ Route::group([
     Route::get('/add', 'CategoryController@create')->middleware('verified')->name('admin.category.add');
 
     Route::post('/create', 'CategoryController@store')->middleware('verified')->name('admin.category.create');
+
+    Route::get('/edit/{id}', 'CategoryController@edit')->middleware('verified')->name('admin.category.edit');
+
+    Route::post('/update/{id}', 'CategoryController@update')->middleware('verified')->name('admin.category.update');
+
+    Route::get('/delete/{id}', 'CategoryController@destroy')->middleware('verified')->name('admin.category.delete');
+
+    Route::get('/restore/{id}', 'CategoryController@restore')->middleware('verified')->name('admin.category.restore');
  
     //--------Category------------------------//
 });
@@ -370,6 +425,40 @@ Route::group([
     Route::get('/like', 'LikeController@like')->middleware('verified')->name('admin.like.post');
 
     Route::get('/unlike', 'UnlikeController@unlike')->middleware('verified')->name('admin.unlike.post');
+ 
+    //--------Post------------------------//
+});
+
+Route::group([
+    'prefix' => 'admin/thread/{threadid}/Comment',
+    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::post('/create', 'CommentController@store2')->middleware('verified')->name('admin.comment.create.thread');
+
+    Route::get('/edit/{commentid}', 'CommentController@edit2')->middleware('verified')->name('admin.comment.edit.thread');
+
+    Route::post('/update/{commentid}', 'CommentController@update2')->middleware('verified')->name('admin.comment.update.thread');
+
+    Route::get('/delete/{commentid}', 'CommentController@destroy')->middleware('verified')->name('admin.comment.delete.thread');
+
+    Route::get('/restore/{commentid}', 'CommentController@restore')->middleware('verified')->name('admin.comment.restore.thread');
+ 
+    //--------Post------------------------//
+});
+
+Route::group([
+    'prefix' => 'admin/{threadid}/like',
+    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::get('/like', 'LikeController@likethread')->middleware('verified')->name('admin.like.post.thread');
+
+    Route::get('/unlike', 'LikeController@unlikethread')->middleware('verified')->name('admin.unlike.post.thread');
  
     //--------Post------------------------//
 });

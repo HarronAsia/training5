@@ -3,7 +3,7 @@
 namespace App\Repositories\Comment;
 
 use App\Repositories\BaseRepository;
-use App\Comment;
+use App\Models\Comment;
 use Illuminate\Support\Facades\DB;
 
 class CommentRepository extends BaseRepository implements CommentRepositoryInterface
@@ -11,7 +11,7 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
     //lấy model tương ứng
     public function getModel()
     {
-        return \App\Comment::class;
+        return \App\Models\Comment::class;
     }
 
     public function showall($id)
@@ -39,5 +39,7 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
             
         
     }
+
+    
    
 }

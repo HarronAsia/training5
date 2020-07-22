@@ -1,14 +1,14 @@
 <?php
 
 
-use App\Category;
-use App\Community;
-use App\Forum;
-use App\Post;
-use App\Tag;
-use App\Thread;
-use App\User;
-use App\Comment;
+use App\Models\Category;
+use App\Models\Community;
+use App\Models\Forum;
+use App\Models\Post;
+use App\Models\Tag;
+use App\Models\Thread;
+use App\Models\User;
+use App\Models\Comment;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;

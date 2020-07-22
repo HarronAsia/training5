@@ -4,7 +4,7 @@ namespace App\Repositories\User\Account;
 
 use App\Repositories\BaseRepository;
 
-use App\Profile;
+use App\Models\Profile;
 use Illuminate\Support\Facades\DB;
 
 
@@ -13,7 +13,7 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
     //lấy model tương ứng
     public function getModel()
     {
-        return \App\Profile::class;
+        return \App\Models\Profile::class;
     }
 
     

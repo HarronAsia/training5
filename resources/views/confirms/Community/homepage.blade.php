@@ -32,19 +32,23 @@
                     </thead>
                     <tbody>
                         @foreach ($communities as $community)
-                        
+
                         @if( Auth::user()->role == "admin")
                         <tr>
                             <td>{{$community->id}}</td>
                             <td>
                                 <a href="{{ route('community.show',['id' => $community->id])}}">
+                                    @if($community->banner != NULL)
                                     <img src="{{asset('storage/community/'.$community->title.'/'.$community->banner.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                                    @else
+                                    <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:200px ;height:200px;">
+                                    @endif
                                 </a>
                             </td>
 
                             <td>
                                 <div>
-                                {{$community->title}}
+                                    {{$community->title}}
                                 </div>
                             </td>
                             <td>{{$community->created_at}}</td>
@@ -78,9 +82,31 @@
 
                             </td>
                         </tr>
+                        @else
+                        <tr>
+                            <td>{{$community->id}}</td>
+                            <td>
+                                <a href="{{ route('manager.community.show',['id' => $community->id])}}">
+                                    @if($community->banner != NULL)
+                                    <img src="{{asset('storage/community/'.$community->title.'/'.$community->banner.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                                    @else
+                                    <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:200px ;height:200px;">
+                                    @endif
+                                </a>
+                            </td>
+
+                            <td>
+                                <div>
+                                    {{$community->title}}
+                                </div>
+                            </td>
+                            <td>{{$community->created_at}}</td>
+                            <td>{{$community->updated_at}}</td>
+                            <td>For Admin Only</td>
+                        </tr>
                         @endif
 
-                        
+
                         @endforeach
                     </tbody>
                 </table>

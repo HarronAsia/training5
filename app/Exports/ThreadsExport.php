@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Thread;
+use App\Models\Thread;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;

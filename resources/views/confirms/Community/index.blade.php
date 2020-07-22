@@ -7,7 +7,11 @@
 
         <!-- Post Content Column -->
         <div class="col-md-8">
-
+            @if($community->banner != NULL)
+            <img src="{{asset('storage/community/'.$community->title.'/'.$community->banner.'/')}}" alt="Image" style="width:100px ;height:100px;">
+            @else
+            <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:100px ;height:100px;">
+            @endif
             <!-- Title -->
             <h1 class="mt-4">{{$community->title}}</h1>
 
@@ -26,8 +30,6 @@
             @endif
             @endif
 
-            <!-- thread Image -->
-            <img src="{{asset('storage/community/'.$community->title.'/'.$community->banner.'/')}}" alt="Image">
 
         </div>
 
@@ -62,10 +64,12 @@
                 <div class="form-group">
                     <input type="submit" class="form-control form-control-lg" class="btn btn-success btn-block btn-lg">
                 </div>
-
+                @if(Auth::user()->role == "manager")
             </form>
-
-            @endif
+            @else
+        </form>
+        @endif
+        @endif
 
     </div>
     <br>
@@ -101,7 +105,7 @@
             </div>
             @endif
             @else
-            @if(Auth::user()->id != $user->id)
+            @if(Auth::user()->id != $post->user_id)
 
             @else
             <div class="pull-right">
@@ -132,13 +136,9 @@
             <div>
 
                 <div>
-                    <h4>Comments</h4>
-                    <?php $likes = App\Like::get()->where('likeable_id', $post->id)->count(); ?>
-
-
 
                     <a href="{{route('admin.like.post',['postid' => $post->id])}}" style="color: crimson;">
-                        <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Like</span>&nbsp;&nbsp;{{$likes}}</button>
+                        <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Like</span>&nbsp;&nbsp;{{$post->likes->count()}}</button>
                     </a>
 
                     <i class="fa fa-commenting-o" aria-hidden="true"></i><span>Comment</span>
@@ -172,8 +172,8 @@
 
             </div>
             <div>
-                <?php $comments = App\Comment::get()->where('commentable_id', '=', $post->id); ?>
-                @foreach($comments as $comment)
+
+                @foreach($post->comments as $comment)
 
                 @if(Auth::user()->role == 'admin')
                 <div>
@@ -183,7 +183,7 @@
                 <div>
                     <img src="{{asset('storage/comment/'.$comment->user_id.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
                 </div>
-                @if($post->deleted_at != NULL)
+                @if($comment->deleted_at != NULL)
                 <div class="pull-right">
                     <a href="{{route('admin.comment.edit',['postid' => $post->id,'commentid'=>$comment->id])}}">
                         <button type="button" class="btn btn-success btn-lg">
@@ -206,8 +206,7 @@
                 </div>
                 @endif
                 @else
-                <?php $comments = App\Comment::get()->where('commentable_id', '=', $post->id)->where('deleted_at', NULL); ?>
-                @if($post->deleted_at != NULL)
+                @if($comment->deleted_at != NULL)
 
                 @else
                 <div>
@@ -218,22 +217,7 @@
                     <img src="{{asset('storage/comment/'.$comment->user_id.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
                 </div>
                 @endif
-                @if(Auth::user()->id != $user->id)
 
-                @else
-                <div class="pull-right">
-                    <a href="{{route('manager.comment.edit',['postid' => $post->id,'commentid'=>$comment->id])}}">
-                        <button type="button" class="btn btn-info btn-lg">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    </a>
-                    <a href="{{route('manager.comment.delete',['postid' => $post->id,'commentid'=>$comment->id])}}">
-                        <button type="button" class="btn btn-danger btn-lg">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </a>
-                </div>
-                @endif
                 @endif
                 @endforeach
             </div>

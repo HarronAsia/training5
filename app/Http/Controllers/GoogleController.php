@@ -42,13 +42,7 @@ class GoogleController extends Controller
                 return redirect('/');
      
             }else{
-                // $newUser = User::save([
-                //     'name' => $user->name,
-                //     'email' => $user->email,
-                //     'google_id'=> $user->id,
-                //     'email_verified_at' =>  $user->email_verified_at,
-                //     'password' => encrypt('123456dummy')
-                // ]);
+
                 $newUser = new User();
                 $newUser->name = $user->name;
                 $newUser->email = $user->email;

@@ -2,16 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Post;
-use App\Community;
-use Illuminate\Http\Request;
+use App\Models\Post;
+use App\Models\Community;
+
 use App\Http\Requests\StorePost;
+
+use App\Notifications\Post\AddPostNotification;
+use App\Notifications\Post\EditPostNotification;
+use App\Notifications\Post\DeletePostNotification;
+use App\Notifications\Post\RestorePostNotification;
+
 use Illuminate\Support\Facades\Auth;
 
 use App\Repositories\Community\CommunityRepositoryInterface;
 use App\Repositories\Post\PostRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
-use Illuminate\Support\Facades\Session;
+
 
 class PostController extends Controller
 {
@@ -61,8 +67,9 @@ class PostController extends Controller
 
         $post = new Post();
 
-        $community = Community::findOrFail($id);
-        $data['community_id'] = $community->id;
+       
+
+        $data['community_id'] = $id;
 
         $data['user_id'] = Auth::user()->id;
 
@@ -84,9 +91,10 @@ class PostController extends Controller
         $post->community_id = $data['community_id'];
 
         $post->save();
-
         
-        return redirect()->route('community.show',$community->id);
+        $post->notify(new AddPostNotification());
+        
+        return redirect()->back();
     }
 
     /**
@@ -157,7 +165,7 @@ class PostController extends Controller
         $post->image = $filename;
         
         $post->update();
-
+        $post->notify(new EditPostNotification());
         return redirect()->route('community.show',$post->community_id);
     }
 
@@ -170,16 +178,17 @@ class PostController extends Controller
     public function destroy($id, $postid)
     {        
         
-        $community = $this->commuRepo->showcommunity($id);
-
         $this->postRepo->deletepost($postid);
-        return redirect()->route('community.show',$community->id);
+        $post = $this->postRepo->getTrash($postid);
+        $post->notify(new DeletePostNotification());
+        return redirect()->back();
     }
 
     public function restore($id, $postid)
     {      
         $this->postRepo->restorepost($postid);
         $post = $this->postRepo->showpost($postid);
-        return redirect()->route('community.show',$post->community_id);
+        $post->notify(new RestorePostNotification());
+        return redirect()->back();
     }
 }

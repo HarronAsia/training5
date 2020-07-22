@@ -2,19 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Like;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Post\PostRepositoryInterface;
+use App\Repositories\Thread\ThreadRepositoryInterface;
 
 class LikeController extends Controller
 {
 
     protected $postRepo;
-    public function __construct(PostRepositoryInterface $postRepo)
+    protected $threadRepo;
+
+    public function __construct(PostRepositoryInterface $postRepo, ThreadRepositoryInterface $threadRepo)
     {
         $this->middleware('auth');
         $this->postRepo = $postRepo;
+        $this->threadRepo = $threadRepo;
     }
     /**
      * Display a listing of the resource.
@@ -101,5 +105,16 @@ class LikeController extends Controller
         ]);
 
         return redirect()->route('community.show',$post->community_id);
+    }
+
+    public function likethread($threadid)
+    {
+        $thread = $this->threadRepo->showThread($threadid);
+
+        $thread->likes()->create([
+            'user_id' => Auth::user()->id
+        ]);
+
+        return redirect()->route('thread.detail',[$thread->forum_id,$thread->id]);
     }
 }

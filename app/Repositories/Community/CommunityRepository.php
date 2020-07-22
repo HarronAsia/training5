@@ -3,7 +3,7 @@
 namespace App\Repositories\Community;
 
 use App\Repositories\BaseRepository;
-use App\Community;
+use App\Models\Community;
 use Illuminate\Support\Facades\DB;
 
 class CommunityRepository extends BaseRepository implements CommunityRepositoryInterface
@@ -11,11 +11,12 @@ class CommunityRepository extends BaseRepository implements CommunityRepositoryI
     //lấy model tương ứng
     public function getModel()
     {
-        return \App\Community::class;
+        return \App\Models\Community::class;
     }
 
     public function showall()
     {
+        
         return $this->model = DB::table('communities')->paginate(10);
     }
 
@@ -25,18 +26,18 @@ class CommunityRepository extends BaseRepository implements CommunityRepositoryI
     }
    
     public function deletecommunity($id)
-    {
-        
-        $this->model = Community::findOrFail($id);
-        
+    {      
+        $this->model = Community::findOrFail($id);      
         return $this->model->delete();
     }
 
     public function restorecommunity($id)
     {
-       
-        return $this->model = Community::onlyTrashed()->where('id',$id)->restore();
-            
-        
+        return $this->model = Community::onlyTrashed()->where('id',$id)->restore();   
+    }
+
+    public function getTrash($id)
+    {  
+        return $this->model = Community::withTrashed()->find($id);
     }
 }
