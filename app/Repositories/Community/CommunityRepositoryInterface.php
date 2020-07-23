@@ -9,4 +9,6 @@ interface CommunityRepositoryInterface
     public function deletecommunity($id);
     public function restorecommunity($id);
     public function getTrash($id);
+
+    public function getAllCommunities();
 }

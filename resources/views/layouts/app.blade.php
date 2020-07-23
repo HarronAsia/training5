@@ -85,7 +85,7 @@
                             <!-- Menu Toggle Button -->
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <!-- The user image in the navbar-->
-
+                                
                                 @if (Auth::user()->photo == NULL)
                                 <img src="{{asset('storage/default.png')}}" alt="Image" class="user-image">
                                 @else
@@ -114,11 +114,16 @@
                                     <a href="{{ route('profile.index', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}}" class="btn btn-default btn-flat">Profile</a>
 
                                 </li>
-                                <li class="user-footer">
+                                @foreach($profile as $value)
+                                <li class="user-footer">               
+                                    @if(Auth::user()->id == $value->id)
+                                    <a href="{{ route('account.profile', ['id'=> Auth::user()->id])}}" class="btn btn-default btn-flat">Personal Information</a>
+                                    @else
 
-                                    <a href="{{ route('account.profile', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}}" class="btn btn-default btn-flat">Personal Information</a>
-
+                                    @endif
+                      
                                 </li>
+                                @endforeach
                                 <li class="user-footer">
 
                                     <a href="{{ url('/logout') }}" class="btn btn-default btn-flat" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

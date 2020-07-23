@@ -40,4 +40,9 @@ class CommunityRepository extends BaseRepository implements CommunityRepositoryI
     {  
         return $this->model = Community::withTrashed()->find($id);
     }
+
+    public function getAllCommunities()
+    {
+        return $this->model = DB::table('communities')->paginate(5);
+    }
 }

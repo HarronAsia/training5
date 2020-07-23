@@ -17,21 +17,26 @@ use Illuminate\Support\Facades\Auth;
 use App\Repositories\Community\CommunityRepositoryInterface;
 use App\Repositories\Post\PostRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
-
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
 
 class PostController extends Controller
 {
-    
+
     protected $commuRepo;
     protected $postRepo;
     protected $userRepo;
+    protected $profileRepo;
+    protected $notiRepo;
 
-    public function __construct(CommunityRepositoryInterface $commuRepo, PostRepositoryInterface $postRepo, UserRepositoryInterface $userRepo)
+    public function __construct(CommunityRepositoryInterface $commuRepo, PostRepositoryInterface $postRepo, UserRepositoryInterface $userRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
         $this->middleware('auth');
         $this->postRepo = $postRepo;
         $this->commuRepo = $commuRepo;
         $this->userRepo = $userRepo;
+        $this->profileRepo = $profileRepo;
+        $this->notiRepo = $notiRepo;
     }
 
     /**
@@ -67,8 +72,6 @@ class PostController extends Controller
 
         $post = new Post();
 
-       
-
         $data['community_id'] = $id;
 
         $data['user_id'] = Auth::user()->id;
@@ -80,7 +83,7 @@ class PostController extends Controller
             $extension = $post->image->getClientOriginalExtension();
             $filename = $data['user_id'] . '.' . $extension;
             $path = storage_path('app/public/post/' . $data['user_id'] . '/');
-            
+
             $post->image->move($path, $filename);
         }
         $data['image'] = $filename;
@@ -91,9 +94,9 @@ class PostController extends Controller
         $post->community_id = $data['community_id'];
 
         $post->save();
-        
+
         $post->notify(new AddPostNotification());
-        
+
         return redirect()->back();
     }
 
@@ -114,12 +117,13 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id,$postid)
+    public function edit($id, $postid)
     {
         $community = $this->commuRepo->showcommunity($id);
-
+        $notifications = $this->notiRepo->showUnread();
         $post = $this->postRepo->showpost($postid);
-        return view('confirms.Community.Post.edit',compact('post','community'));
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Community.Post.edit', compact('post', 'community', 'profile','notifications'));
     }
 
     /**
@@ -132,7 +136,7 @@ class PostController extends Controller
     public function update(StorePost $request, $id, $postid)
     {
         $data = $request->validated();
-        
+
         $post = $this->postRepo->showpost($postid);
 
         $post->detail = $data['detail'];
@@ -142,14 +146,14 @@ class PostController extends Controller
         if ($request->hasFile('image')) {
 
             $post->image =  $data['image'];
-            
+
             $extension =  $post->image->getClientOriginalExtension();
-            
-            
+
+
             $filename =  $post->user_id . '.' . $extension;
-            
+
             $path = storage_path('app/public/post/' . $post->user_id . '/');
-            
+
             if (!file_exists($path . $filename)) {
 
                 $post->image->move($path, $filename);
@@ -163,10 +167,10 @@ class PostController extends Controller
             }
         }
         $post->image = $filename;
-        
+
         $post->update();
         $post->notify(new EditPostNotification());
-        return redirect()->route('community.show',$post->community_id);
+        return redirect()->route('community.show', $post->community_id);
     }
 
     /**
@@ -176,8 +180,8 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id, $postid)
-    {        
-        
+    {
+
         $this->postRepo->deletepost($postid);
         $post = $this->postRepo->getTrash($postid);
         $post->notify(new DeletePostNotification());
@@ -185,7 +189,7 @@ class PostController extends Controller
     }
 
     public function restore($id, $postid)
-    {      
+    {
         $this->postRepo->restorepost($postid);
         $post = $this->postRepo->showpost($postid);
         $post->notify(new RestorePostNotification());

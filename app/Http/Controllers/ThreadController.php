@@ -13,8 +13,7 @@ use App\Exports\ThreadsExport;
 
 use App\Imports\ThreadsImport;
 use App\Http\Requests\StoreThread;
-use App\Notifications\Forum\DeleteForumNotification;
-use App\Notifications\Forum\RestoreForumNotification;
+
 use Illuminate\Support\Facades\DB;
 
 
@@ -25,10 +24,13 @@ use App\Notifications\Thread\RestoreThreadNotification;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+
 use App\Repositories\Forum\ForumRepositoryInterface;
 use App\Repositories\Thread\ThreadRepositoryInterface;
 use App\Repositories\Thread\Tag\TagRepositoryInterface;
 use App\Repositories\Comment\CommentRepositoryInterface;
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
 
 class ThreadController extends Controller
 {
@@ -36,24 +38,29 @@ class ThreadController extends Controller
     protected $tagRepo;
     protected $forumRepo;
     protected $commRepo;
+    protected $profileRepo;
+    protected $notiRepo;
 
-    public function __construct(ThreadRepositoryInterface $threadRepo, TagRepositoryInterface $tagRepo, ForumRepositoryInterface $forumRepo, CommentRepositoryInterface $commRepo)
+    public function __construct(ThreadRepositoryInterface $threadRepo, TagRepositoryInterface $tagRepo, ForumRepositoryInterface $forumRepo, CommentRepositoryInterface $commRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
         $this->threadRepo = $threadRepo;
         $this->tagRepo = $tagRepo;
         $this->forumRepo = $forumRepo;
         $this->commRepo = $commRepo;
+        $this->profileRepo = $profileRepo;
+        $this->notiRepo = $notiRepo;
     }
 
     public function index($id)
     {
 
         $forum = $this->forumRepo->showforum($id);
-        
+
         $threads = $this->threadRepo->getallThreads($forum->id);
-        
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('confirms.Forum.Thread.homepage', compact('threads', 'forum', 'notifications'));
+
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Forum.Thread.homepage', compact('threads', 'forum', 'notifications', 'profile'));
     }
 
     public function create($id)
@@ -61,8 +68,10 @@ class ThreadController extends Controller
         $forum = $this->forumRepo->showforum($id);
         $threads = $this->threadRepo->addThread();
         $tags = $this->tagRepo->showall();
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('confirms.Thread.add_thread', compact('threads', 'tags', 'forum', 'notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+
+        return view('confirms.Thread.add_thread', compact('threads', 'tags', 'forum', 'notifications', 'profile'));
     }
 
     //Confirm Add thread---------------------------------------------------------------
@@ -99,8 +108,10 @@ class ThreadController extends Controller
         Session::put('thumbnail', $data['thumbnail']);
 
         $thread = $value = Session::all();
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('confirms.Thread.confirm_add_thread', compact('thread', 'tag', 'forum', 'notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+
+        return view('confirms.Thread.confirm_add_thread', compact('thread', 'tag', 'forum', 'notifications', 'profile'));
     }
     //Confirm Add thread-------------------------------------------------------------
 
@@ -124,13 +135,16 @@ class ThreadController extends Controller
 
     public function edit($id, $threadid)
     {
+        
         $forum = $this->forumRepo->showforum($id);
         $thread = $this->threadRepo->showThread($threadid);
+        
         $tags = $this->tagRepo->showall();
         $threadtag = $this->tagRepo->getTag($thread->tag_id);
 
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('confirms.Thread.edit', compact('thread', 'tags', 'threadtag', 'forum', 'notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Thread.edit', compact('thread', 'tags', 'threadtag', 'forum', 'notifications', 'profile'));
     }
 
     public function confirmupdate(StoreThread $request, $id, $threadid)
@@ -181,8 +195,10 @@ class ThreadController extends Controller
         Session::put('thumbnail', $value->thumbnail);
 
         $thread = $value = Session::all();
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('confirms.Thread.confirm_edit_thread', compact('thread', 'tag', 'forum', 'notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+
+        return view('confirms.Thread.confirm_edit_thread', compact('thread', 'tag', 'forum', 'notifications', 'profile'));
     }
 
     public function update($id, $threadid)
@@ -215,9 +231,11 @@ class ThreadController extends Controller
 
         $tag = $this->tagRepo->getTag($value->tag_id);
 
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        $notifications = $this->notiRepo->showUnread();
 
-        return view('confirms.Thread.index', compact('thread', 'user', 'tag', 'notifications'));
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+
+        return view('confirms.Thread.index', compact('thread', 'user', 'tag', 'notifications', 'profile'));
     }
 
 
@@ -245,7 +263,10 @@ class ThreadController extends Controller
     public function all()
     {
         $threads = $this->threadRepo->allThreads();
-        return view('admin.export.threads.export_threads', compact('threads'));
+        $notifications = $this->notiRepo->showUnread();
+
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('admin.export.threads.export_threads', compact('threads','notifications','profile'));
     }
 
     public function export()

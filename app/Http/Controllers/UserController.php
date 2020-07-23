@@ -3,26 +3,40 @@
 namespace App\Http\Controllers;
 
 use Excel;
-use App\User;
+
 use App\Exports\UsersExport;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUser;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\Session;
+
 use App\Repositories\User\UserRepositoryInterface;
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
+
 
 class UserController extends Controller
 {
 
     protected $userRepo;
 
-    public function __construct(UserRepositoryInterface $userRepo)
+    protected $profileRepo;
+    protected $notiRepo;
+
+
+    public function __construct(UserRepositoryInterface $userRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
+
     {
         $this->middleware('auth');
         $this->userRepo = $userRepo;
+
+        $this->profileRepo = $profileRepo;
+        $this->notiRepo = $notiRepo;
     }
+
 
     /**
      * Display a listing of the resource.
@@ -60,12 +74,13 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($name,$id)
+    public function show($name, $id)
     {
-        
+
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
         $user = $this->userRepo->showUser($id);
-        $notifications = DB::table('notifications')->get();
-        return view('confirms.User.profile', compact('user','notifications'));
+        return view('confirms.User.profile', compact('user', 'notifications','profile'));
     }
 
     /**
@@ -74,18 +89,19 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($name,$id)
+    public function edit($name, $id)
     {
         $user = $this->userRepo->showUser($id);
-        $notifications = DB::table('notifications')->get();
-        return view('confirms.User.edit', compact('user','notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.User.edit', compact('user', 'notifications','profile'));
     }
 
     public function confirm(StoreUser $request, $id)
     {
-        
+
         $data = $request->validated();
-        
+
         $value = $this->userRepo->showUser($id);
 
         Session::put('name', $data['name']);
@@ -109,8 +125,10 @@ class UserController extends Controller
         Session::put('photo', $data['photo']);
 
         $user = $value = Session::all();
-        
-        return view('confirms.User.confirm_page', compact('user'));
+
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.User.confirm_page', compact('user','profile','notifications'));
     }
 
     /**
@@ -122,20 +140,20 @@ class UserController extends Controller
      */
     public function update($id)
     {
-        
-        $value = $this->userRepo->showUser($id);
 
-        $value->name = Session::get('name');
-        $value->email = Session::get('email');
-        $value->password = Session::get('password');
-        $value->dob = Session::get('dob');
-        $value->photo = Session::get('photo');
-        $value->number = Session::get('number');
+        $user = $this->userRepo->showUser($id);
+
+        $user->name = Session::get('name');
+        $user->email = Session::get('email');
+        $user->password = Session::get('password');
+        $user->dob = Session::get('dob');
+        $user->photo = Session::get('photo');
+        $user->number = Session::get('number');
 
 
-        $value->update();
+        $user->update();
 
-        return redirect('/');
+        return redirect()->route('profile.index',[$user->name,$user->id]);
     }
 
     /**
@@ -152,7 +170,10 @@ class UserController extends Controller
     public function all()
     {
         $users = $this->userRepo->allUsers();
-        return view('admin.export.users.export_users', compact('users'));
+        $notifications = $this->notiRepo->showUnread();
+
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('admin.export.users.export_users', compact('users','notifications','profile'));
     }
 
     public function export()

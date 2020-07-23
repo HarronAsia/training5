@@ -143,10 +143,6 @@
 
                     <i class="fa fa-commenting-o" aria-hidden="true"></i><span>Comment</span>
 
-                    <a href="" style="color: blue;">
-                        <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Report</span></button>
-                    </a>
-
                 </div>
                 <div>
                     @if(Auth::user()->role == "manager")

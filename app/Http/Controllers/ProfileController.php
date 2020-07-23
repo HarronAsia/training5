@@ -2,13 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+
 use App\Models\Profile;
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\Auth;
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
+use App\Repositories\User\UserRepositoryInterface;
+
 class ProfileController extends Controller
 {
+
+    protected $profileRepo;
+    protected $userRepo;
+    protected $notiRepo;
+
+    public function __construct( UserRepositoryInterface $userRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
+    {
+        $this->middleware('auth');
+        $this->userRepo = $userRepo;
+        $this->profileRepo = $profileRepo;
+        $this->notiRepo = $notiRepo;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -24,11 +39,13 @@ class ProfileController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($id)
     {
-        $user = User::findOrFail(Auth::user()->id);
-       
-        return view('confirms.User.Profile.personal_information',compact('user'));
+        $user = $this->userRepo->showUser($id);
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile($user->id);
+
+        return view('confirms.User.Profile.personal_information', compact('user','notifications','profile'));
     }
 
     /**
@@ -37,13 +54,15 @@ class ProfileController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
-        
+
         $data = $request;
         $profile = new Profile();
-        $user = User::findOrFail(Auth::user()->id);
-        $profile->user_id = Auth::user()->id;
+
+        $user = $this->userRepo->showUser($id);
+
+        $profile->user_id = $user->id;
         $profile->place = $data['place'];
         $profile->job = $data['job'];
         $profile->personal_id = $data['personal_id'];
@@ -52,11 +71,10 @@ class ProfileController extends Controller
         $profile->supervisor_name = $data['supervisor_name'];
         $profile->supervisor_dob = $data['supervisor_dob'];
         $profile->detail = $data['detail'];
-        
-        $profile->save();
-        return view('confirms.User.Profile.index',compact('profile','user'));
 
-        
+        $profile->save();
+
+        return redirect()->route('account.profile',$user->id);
     }
 
     /**
@@ -67,9 +85,14 @@ class ProfileController extends Controller
      */
     public function show($id)
     {
-       $profile = Profile::findOrFail($id);
-       $user = User::findOrFail(Auth::user()->id) ;
-       return view('confirms.User.Profile.index',compact('profile','user'));
+        
+        
+        
+        $user = $this->userRepo->showUser($id);
+        $profile = $this->profileRepo->getProfile($user->id);
+        
+        $notifications = $this->notiRepo->showUnread();
+        return view('confirms.User.Profile.index', compact('profile', 'user','notifications'));
     }
 
     /**
@@ -80,9 +103,10 @@ class ProfileController extends Controller
      */
     public function edit($id)
     {
-        $profile = Profile::findOrFail($id);
-        $user = User::findOrFail(Auth::user()->id) ;
-        return view('confirms.User.Profile.edit',compact('profile','user'));
+        $profile = $this->profileRepo->getProfile($id);
+        $user = $this->userRepo->showUser($id);
+        $notifications = $this->notiRepo->showUnread();
+        return view('confirms.User.Profile.edit', compact('profile', 'user','notifications'));
     }
 
     /**
@@ -95,10 +119,8 @@ class ProfileController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request;
-        $profile = Profile::findOrFail($id);
-        $user = User::findOrFail(Auth::user()->id) ;
-
-        $profile->user_id = $user->id;
+        $profile = $this->profileRepo->showProfile($id);
+        
         $profile->place = $data['place'];
         $profile->job = $data['job'];
         $profile->personal_id = $data['personal_id'];
@@ -119,7 +141,8 @@ class ProfileController extends Controller
         $profile->twitter_link = $data['twitter_link'];
         
         $profile->update();
-        return view('confirms.User.Profile.index',compact('profile','user'));
+
+        return redirect()->route('account.profile',$profile->user_id);
     }
 
     /**

@@ -60,16 +60,23 @@
     <div>
 
         <div>
+            @if(Auth::user()->role == "manager")
+            <a href="{{route('manager.like.post.thread',['threadid' => $value->id])}}" style="color: crimson;">
+                @else
+                <a href="{{route('admin.like.post.thread',['threadid' => $value->id])}}" style="color: crimson;">
+                    @endif
+                    <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Like</span>&nbsp;&nbsp;{{$value->likes->count()}}</button>
+                </a>
 
-            <a href="{{route('admin.like.post.thread',['threadid' => $value->id])}}" style="color: crimson;">
-                <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Like</span>&nbsp;&nbsp;{{$value->likes->count()}}</button>
-            </a>
+                <i class="fa fa-commenting-o" aria-hidden="true"></i><span>Comment {{$value->comments('id')->count()}}</span>
 
-            <i class="fa fa-commenting-o" aria-hidden="true"></i><span>Comment</span>
+                @if(Auth::user()->role == "manager")
+                <a href="{{route('thread.report.create',['threadid' => $value->id])}}" style="color: blue;">
+                    <button> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Report</span></button>
+                </a>
+                @else
 
-            <a href="" style="color: blue;">
-                <button> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Report</span></button>
-            </a>
+                @endif
 
         </div>
         <div>
@@ -111,62 +118,62 @@
             <div>
                 <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
             </div>
-                @if($comment->deleted_at != NULL)
-                <div class="pull-right">
-                    <a href="{{route('admin.comment.restore.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
-                        <button type="button" class="btn btn-success btn-lg">
-                            <i class="fa fa-undo"></i>
-                        </button>
-                    </a>
-                </div>
-                @else
-                <div class="pull-right">
-                    <a href="{{route('admin.comment.edit.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
-                        <button type="button" class="btn btn-info btn-lg">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    </a>
-                    <a href="{{route('admin.comment.delete.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
-                        <button type="button" class="btn btn-danger btn-lg">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </a>
-                </div>
-                @endif
+            @if($comment->deleted_at != NULL)
+            <div class="pull-right">
+                <a href="{{route('admin.comment.restore.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
+                    <button type="button" class="btn btn-success btn-lg">
+                        <i class="fa fa-undo"></i>
+                    </button>
+                </a>
+            </div>
+            @else
+            <div class="pull-right">
+                <a href="{{route('admin.comment.edit.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
+                    <button type="button" class="btn btn-info btn-lg">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                </a>
+                <a href="{{route('admin.comment.delete.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
+                    <button type="button" class="btn btn-danger btn-lg">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </a>
+            </div>
+            @endif
 
             @else
-                @if($comment->deleted_at != NULL)
+            @if($comment->deleted_at != NULL)
 
-                @else
-                <div>
-                    {{$comment->comment_detail}}
-                </div>
-                <br>
-                <div>
-                    <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
-                </div>
-                    @if(Auth::user()->id == $comment->user_id)
-                        @if($comment->deleted_at != NULL)
+            @else
+            <div>
+                {{$comment->comment_detail}}
+            </div>
+            <br>
+            <div>
+                <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+            </div>
+            @if(Auth::user()->id == $comment->user_id)
+            @if($comment->deleted_at != NULL)
 
-                        @else
-                        <div class="pull-right">
-                            <a href="{{route('manager.comment.edit.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
-                                <button type="button" class="btn btn-info btn-lg">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                            </a>
-                            <a href="{{route('manager.comment.delete.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
-                                <button type="button" class="btn btn-danger btn-lg">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </a>
-                        </div>
-                        @endif
-                    @else
+            @else
+            <div class="pull-right">
+                <a href="{{route('manager.comment.edit.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
+                    <button type="button" class="btn btn-info btn-lg">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                </a>
+                <a href="{{route('manager.comment.delete.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
+                    <button type="button" class="btn btn-danger btn-lg">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </a>
+            </div>
+            @endif
+            @else
 
-                    @endif
+            @endif
 
-                @endif
+            @endif
 
             @endif
 

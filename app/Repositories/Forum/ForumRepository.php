@@ -4,7 +4,7 @@ namespace App\Repositories\Forum;
 
 use App\Repositories\BaseRepository;
 use App\Models\Forum;
-
+use Illuminate\Support\Facades\DB;
 class ForumRepository extends BaseRepository implements ForumRepositoryInterface
 {
     //lấy model tương ứng
@@ -41,5 +41,10 @@ class ForumRepository extends BaseRepository implements ForumRepositoryInterface
     {
         
         return $this->model = Forum::withTrashed()->find($id);
+    }
+
+    public function getAllForums()
+    {
+        return $this->model = DB::table('forums')->paginate(5);
     }
 }

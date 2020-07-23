@@ -69,11 +69,12 @@
             <a href="{{ route('admin.export.thread')}}"><i class="fa fa-circle text-info"></i> Export threads List</a>
 
         </div>
+        
+        <!-- Sidebar Menu -->
+        <hr>
         @else
 
         @endif
-        <!-- Sidebar Menu -->
-        <hr>
         <ul class="sidebar-menu" data-widget="tree">
             @include('layouts.menu')
         </ul>

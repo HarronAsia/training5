@@ -39,4 +39,9 @@ class Thread extends Model
         return $this->morphMany('App\Models\Like', 'likeable');
     }
 
+    public function reports()
+    {
+        return $this->morphMany('App\Models\Report', 'reportable');
+    }
+
 }

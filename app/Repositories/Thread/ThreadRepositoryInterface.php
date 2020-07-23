@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Repositories\Thread;
+
 interface ThreadRepositoryInterface
 {
 
@@ -21,4 +23,7 @@ interface ThreadRepositoryInterface
 
     public function count_users($id);
 
+    public function getAllThreadsByManager();
+
+    public function getAllThreadsByAdmin();
 }

@@ -7,25 +7,29 @@ use App\Http\Requests\StoreComment;
 
 use App\Notifications\AddCommentNotification;
 use Illuminate\Support\Facades\Auth;
+
 use App\Repositories\Post\PostRepositoryInterface;
 use App\Repositories\Comment\CommentRepositoryInterface;
 use App\Repositories\Thread\ThreadRepositoryInterface;
-
-use Illuminate\Support\Facades\DB;
-use Illuminate\Notifications\Notification;
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
 
 class CommentController extends Controller
 {
     protected $postRepo;
     protected $commRepo;
     protected $threadRepo;
+    protected $profileRepo;
+protected $notiRepo;
 
-    public function __construct(PostRepositoryInterface $postRepo, CommentRepositoryInterface $commRepo,ThreadRepositoryInterface $threadRepo)
+    public function __construct(PostRepositoryInterface $postRepo, CommentRepositoryInterface $commRepo, ThreadRepositoryInterface $threadRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
         $this->middleware('auth');
         $this->postRepo = $postRepo;
         $this->commRepo = $commRepo;
         $this->threadRepo = $threadRepo;
+        $this->profileRepo = $profileRepo;
+                $this->notiRepo = $notiRepo;
     }
     /**
      * Display a listing of the resource.
@@ -55,58 +59,62 @@ class CommentController extends Controller
     public function store(StoreComment $request, $id)
     {
         $data = $request->validated();
-        
+
         $post = $this->postRepo->showpost($id);
-        
+
         if ($request->hasFile('comment_image')) {
 
             $data['comment_image'] = $request->file('comment_image');
 
             $extension = $data['comment_image']->getClientOriginalExtension();
-            $filename =  Auth::user()->name. '.' . $extension;
+            $filename =  Auth::user()->name . '.' . $extension;
             $path = storage_path('app/public/comment/thread/' . $data['comment_detail'] . '/');
 
             $data['comment_image']->move($path, $filename);
         }
         $data['comment_image'] = $filename;
-        
 
 
-        $post->comments()->create(['comment_detail' => $data['comment_detail'],
-                                    'comment_image' =>  $data['comment_image'],
-                                      'user_id' => Auth::user()->id]);
-        
+
+        $post->comments()->create([
+            'comment_detail' => $data['comment_detail'],
+            'comment_image' =>  $data['comment_image'],
+            'user_id' => Auth::user()->id
+        ]);
+
         return redirect()->back();
     }
 
     public function store2(StoreComment $request, $id)
     {
         $data = $request->validated();
-        
+
         $thread = $this->threadRepo->showThread($id);
-        
+
         if ($request->hasFile('comment_image')) {
 
             $data['comment_image'] = $request->file('comment_image');
 
             $extension = $data['comment_image']->getClientOriginalExtension();
-            $filename =  Auth::user()->name. '.' . $extension;
+            $filename =  Auth::user()->name . '.' . $extension;
             $path = storage_path('app/public/comment/thread/' . $data['comment_detail'] . '/');
 
             $data['comment_image']->move($path, $filename);
         }
         $data['comment_image'] = $filename;
-        
 
 
-        $thread->comments()->create(['comment_detail' => $data['comment_detail'],
-                                    'comment_image' =>  $data['comment_image'],
-                                      'user_id' => Auth::user()->id]);
-        
+
+        $thread->comments()->create([
+            'comment_detail' => $data['comment_detail'],
+            'comment_image' =>  $data['comment_image'],
+            'user_id' => Auth::user()->id
+        ]);
+
         return redirect()->back();
     }
 
-    
+
 
     /**
      * Display the specified resource.
@@ -124,20 +132,21 @@ class CommentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($postid,$commentid)
+    public function edit($postid, $commentid)
     {
         $post = $this->postRepo->showpost($postid);
         $comment = $this->commRepo->showComment($commentid);
-        $$notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
-        return view('confirms.Comment.edit',compact('comment','post','notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Comment.edit', compact('comment', 'post', 'notifications', 'profile'));
     }
 
-    public function edit2($threadid,$commentid)
+    public function edit2($threadid, $commentid)
     {
         $thread = $this->threadRepo->showThread($threadid);
         $comment = $this->commRepo->showComment($commentid);
-        $notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
-        return view('confirms.Comment.edit2',compact('comment','thread','notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        return view('confirms.Comment.edit2', compact('comment', 'thread', 'notifications'));
     }
 
     /**
@@ -158,14 +167,14 @@ class CommentController extends Controller
         if ($request->hasFile('comment_image')) {
 
             $comment->comment_image =  $data['comment_image'];
-            
+
             $extension =  $comment->comment_image->getClientOriginalExtension();
-            
-            
+
+
             $filename =  Auth::user()->name . '.' . $extension;
-            
+
             $path = storage_path('app/public/comment/post/' . $data['comment_detail'] . '/');
-            
+
             if (!file_exists($path . $filename)) {
 
                 $comment->comment_image->move($path, $filename);
@@ -185,24 +194,20 @@ class CommentController extends Controller
         $comment->update();
 
         $comment = $this->commRepo->showComment($comment->id);
-  
+
         $comment->notify(new AddCommentNotification());
-        
-        if(Auth::user()->role == 'admin')
-        {
-            
-            return redirect()->route('manager.community.show',[$post->community_id,$post->id]);
+
+        if (Auth::user()->role == 'admin') {
+
+            return redirect()->route('manager.community.show', [$post->community_id, $post->id]);
+        } else {
+            return redirect()->route('community.show', [$post->community_id, $post->id]);
         }
-        else
-        {
-            return redirect()->route('community.show',[$post->community_id,$post->id]);
-        }
-        
     }
 
     public function update2(StoreComment $request, $threadid, $commentid)
     {
-        
+
         $data = $request->validated();
         $thread = $this->threadRepo->showThread($threadid);
         $comment = $this->commRepo->showComment($commentid);
@@ -211,14 +216,14 @@ class CommentController extends Controller
         if ($request->hasFile('comment_image')) {
 
             $comment->comment_image =  $data['comment_image'];
-          
+
             $extension =  $comment->comment_image->getClientOriginalExtension();
-            
-            
-            $filename =  Auth::user()->name. '.' . $extension;
-            
+
+
+            $filename =  Auth::user()->name . '.' . $extension;
+
             $path = storage_path('app/public/comment/thread/' . $data['comment_detail'] . '/');
-            
+
             if (!file_exists($path . $filename)) {
 
                 $comment->comment_image->move($path, $filename);
@@ -234,14 +239,14 @@ class CommentController extends Controller
         $comment->comment_image = $filename;
         $comment->comment_detail = $data['comment_detail'];
         $comment->user_id = Auth::user()->id;
-        
+
         $comment->update();
 
         $comment = $this->commRepo->showComment($comment->id);
         //dd( $comment);
         $comment->notify(new AddCommentNotification());
-        
-        return redirect()->route('thread.detail',[$thread->forum_id,$thread->id]);
+
+        return redirect()->route('thread.detail', [$thread->forum_id, $thread->id]);
     }
 
     /**
@@ -252,14 +257,14 @@ class CommentController extends Controller
      */
     public function destroy($postid, $commentid)
     {
-        
+
         $this->commRepo->deletecomment($commentid);
         return redirect()->back();
     }
 
     public function restore($postid, $commentid)
     {
-        
+
         $this->commRepo->restorecomment($commentid);
         return redirect()->back();
     }

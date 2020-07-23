@@ -3,10 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTag;
+
 use App\Repositories\Thread\Tag\TagRepositoryInterface;
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
+
 use App\Models\Tag;
-use App\Notifications\AddTagNotification;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+
+use App\Notifications\Tag\AddTagNotification;
+use App\Notifications\Tag\EditTagNotification;
+use App\Notifications\Tag\DeleteTagNotification;
+use App\Notifications\Tag\RestoreTagNotification;
+
 
 use Illuminate\Http\Request;
 
@@ -15,11 +24,15 @@ class TagController extends Controller
 {
 
     protected $tagRepo;
+    protected $profileRepo;
+    protected $notiRepo;
 
-    public function __construct(TagRepositoryInterface $tagRepo)
+    public function __construct(TagRepositoryInterface $tagRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
         $this->middleware('auth');
         $this->tagRepo = $tagRepo;
+        $this->profileRepo = $profileRepo;
+        $this->notiRepo = $notiRepo;
     }
     /**
      * Display a listing of the resource.
@@ -39,9 +52,10 @@ class TagController extends Controller
     public function create()
     {
 
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        $notifications = $this->notiRepo->showUnread();
         $tags = $this->tagRepo->showall();
-        return view('confirms.Thread.Tag.add_tag',compact('notifications','tags'));
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Thread.Tag.add_tag', compact('notifications', 'tags', 'profile'));
     }
 
     /**
@@ -52,14 +66,14 @@ class TagController extends Controller
      */
     public function store(StoreTag $request)
     {
-        
+
         $data = $request->validated();
-        
+
 
         $tag = new Tag();
 
         $tag->name = $data['name'];
-        
+
 
         $tag->save();
         $tag->notify(new AddTagNotification());
@@ -107,6 +121,11 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
+    {
+        //
+    }
+
+    public function restore($id)
     {
         //
     }

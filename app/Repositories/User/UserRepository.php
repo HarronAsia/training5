@@ -25,6 +25,6 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
 
     public function allUsers()
     {
-        return $this->model = DB::table('users')->get();
+        return $this->model = DB::table('users')->paginate(5);
     }
 }

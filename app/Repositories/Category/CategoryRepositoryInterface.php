@@ -8,7 +8,9 @@ interface CategoryRepositoryInterface
 
     public function showcategory($id);
 
-   public function deletecategory($id);
+    public function deletecategory($id);
     public function restorecategory($id);
     public function getTrash($id);
+
+    public function getAllCategories();
 }

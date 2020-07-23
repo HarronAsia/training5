@@ -9,4 +9,6 @@ interface ForumRepositoryInterface
     public function deleteForums($id);
     public function restoreForums($id);
     public function getTrash($id);
+
+    public function getAllForums();
 }

@@ -2,24 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Profile;
 use Illuminate\Http\Request;
 
 
 use Illuminate\Support\Facades\DB;
-use App\Repositories\Forum\ForumRepositoryInterface;
+use App\Repositories\Thread\ThreadRepositoryInterface;
 use App\Repositories\Category\CategoryRepositoryInterface;
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
+
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    protected $forumRepo;
     protected $cateRepo;
+    protected $threadRepo;
+    protected $profileRepo;
+    protected $notiRepo;
 
-    public function __construct(CategoryRepositoryInterface $cateRepo, ForumRepositoryInterface $forumRepo)
+    public function __construct(CategoryRepositoryInterface $cateRepo, ThreadRepositoryInterface $threadRepo, ProfileRepositoryInterface $profileRepo,NotificationRepositoryInterface $notiRepo)
     {
         $this->middleware(['auth', 'verified']);
-        $this->forumRepo = $forumRepo;
+        
         $this->cateRepo = $cateRepo;
+        $this->threadRepo = $threadRepo;
+        $this->profileRepo = $profileRepo;
+        $this->notiRepo = $notiRepo;
     }
 
     public function admin(Request $req)
@@ -38,9 +48,9 @@ class HomeController extends Controller
     public function index()
     {
         $categories = $this->cateRepo->showall();
-
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('home', compact('categories', 'notifications'));
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        $notifications = $this->notiRepo->showUnread();
+        return view('home', compact('categories', 'notifications','profile'));
     }
 
     public function readAt($id)

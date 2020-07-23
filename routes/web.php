@@ -31,7 +31,7 @@ Auth::routes(['verify' => true]);
 
 //--------Viewable Page------------------------//
 
-Route::get('/', 'HomeController@index');
+Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('/{id}/mark-as-read', 'HomeController@readAt')->name('notification.read');
 
@@ -60,7 +60,7 @@ Route::post('/profile/update/{id}', 'UserController@update')->middleware('verifi
 
 //--------Account------------------------//
 
-Route::get('/account/index/{name}/{id}', 'ProfileController@show')->middleware('verified')->name('account.profile');
+Route::get('/account/index/{id}', 'ProfileController@show')->middleware('verified')->name('account.profile');
 
 Route::get('/account/personal-details/{id}', 'ProfileController@create')->middleware('verified')->name('account.profile.add');
 
@@ -196,22 +196,129 @@ Route::group([
 });
 
 Route::group([
-    'prefix' => 'admin/{threadid}/like',
-    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+    'prefix' => 'manager/thread/{threadid}/like',
+    'middleware' => 'App\Http\Middleware\ManagerMiddleware'
 ], function () {
 
     //--------Post------------------------//
 
-    Route::get('/like', 'LikeController@like')->middleware('verified')->name('admin.like.post.thread');
+    Route::get('/like', 'LikeController@like')->middleware('verified')->name('manager.like.post.thread');
 
-    Route::get('/unlike', 'UnlikeController@unlike')->middleware('verified')->name('admin.unlike.post.thread');
+    Route::get('/unlike', 'UnlikeController@unlike')->middleware('verified')->name('manager.unlike.post.thread');
+ 
+    //--------Post------------------------//
+});
+
+Route::group([
+    'prefix' => 'manager/thread/{threadid}/Report',
+    'middleware' => 'App\Http\Middleware\ManagerMiddleware'
+], function () {
+
+    //--------Post------------------------//
+    Route::get('/create', 'ReportController@create')->middleware('verified')->name('thread.report.create');
+ 
+    Route::post('/store', 'ReportController@store')->middleware('verified')->name('thread.report.store');
  
     //--------Post------------------------//
 });
 //--------For MANAGER-------------------------------------------------------------------------------------------------//
 
 
+
+
+
 //--------For ADMIN-------------------------------------------------------------------------------------------------//
+Route::group([
+    'prefix' => 'admin',
+    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+], function () {
+
+    Route::get('/{id}/dashboard', 'AdminPanelController@index')->middleware('verified')->name('admin.dashboard');
+    //--------Export------------------------//
+
+    Route::get('/users/export', 'UserController@all')->middleware('verified')->name('admin.export.user');
+    Route::get('/export/users', 'UserController@export')->middleware('verified')->name('admin.export.users');
+
+    Route::get('/threads/export', 'ThreadController@all')->middleware('verified')->name('admin.export.thread');
+    Route::get('/export/threads', 'ThreadController@export')->middleware('verified')->name('admin.export.threads');
+
+    //--------Export------------------------//
+    
+    //--------Import------------------------//
+    Route::post('/import/threads', 'ThreadController@import')->middleware('verified')->name('admin.import.threads');
+    //--------Import------------------------//
+
+    //--------Managing Users------------------------//
+    Route::get('/member/lists', 'AdminPanelController@users')->middleware('verified')->name('user.list');
+    Route::post('/member/lists', 'AdminPanelController@searchFullText')->middleware('verified')->name('search');
+    Route::get('/member/{id}/edit', 'AdminPanelController@editmember')->middleware('verified');
+    Route::post('/member/{id}/confirm', 'AdminPanelController@confirmMember')->middleware('verified');
+    Route::post('/member/{id}/update', 'AdminPanelController@updateusers')->middleware('verified');
+    Route::get('/member/{id}/delete', 'AdminPanelController@destroyusers')->middleware('verified');
+
+    //--------Managing Users------------------------//
+
+    //--------Managing Managers------------------------//
+    Route::get('/manager/lists', 'AdminPanelController@managers')->middleware('verified')->name('manager.list');
+    Route::get('/manager/{id}/edit', 'AdminPanelController@editmanager')->middleware('verified');
+    Route::post('/manager/{id}/confirm', 'AdminPanelController@confirmManager')->middleware('verified');
+    Route::post('/manager/{id}/update', 'AdminPanelController@updatemanagers')->middleware('verified');
+    Route::get('/manager/{id}/delete', 'AdminPanelController@destroymanagers')->middleware('verified');
+
+    //--------Managing Managers------------------------//
+
+    //--------Managing Admins------------------------//
+    Route::get('/{id}/lists', 'AdminPanelController@admins')->middleware('verified')->name('admin.list');
+    Route::get('/admin/{id}/edit', 'AdminPanelController@editadmin')->middleware('verified');
+    Route::post('/admin/{id}/confirm', 'AdminPanelController@confirmforAdmin')->middleware('verified');
+    Route::post('/admin/{id}/update', 'AdminPanelController@updateadmins')->middleware('verified');
+    Route::get('/admin/{id}/delete', 'AdminPanelController@destroyadmins')->middleware('verified');
+
+    //--------Managing Admins------------------------//
+
+    //--------Managing Thread By Admins------------------------//
+    Route::get('/admin/thread/lists', 'AdminPanelController@AdminsThreads')->middleware('verified')->name('admins.threads.list');
+
+    //--------Managing Thread By Admins------------------------//
+
+    //--------Managing Thread By Admins------------------------//
+    Route::get('/manager/thread/lists', 'AdminPanelController@ManagersThreads')->middleware('verified')->name('managers.threads.list');
+
+    //--------Managing Thread By Admins------------------------//
+
+    //--------Managing Tag By Admins------------------------//
+    Route::get('/admin/tags/lists', 'AdminPanelController@Tags')->middleware('verified')->name('tags.admin.list');
+
+    //--------Managing Tag By Admins------------------------//
+
+    //--------Managing Tag By Admins------------------------//
+    Route::get('/admin/forums/lists', 'AdminPanelController@Forums')->middleware('verified')->name('forums.admin.list');
+
+    //--------Managing Tag By Admins------------------------//
+
+    //--------Managing Tag By Admins------------------------//
+    Route::get('/admin/categories/lists', 'AdminPanelController@Categories')->middleware('verified')->name('categories.admin.list');
+
+    //--------Managing Tag By Admins------------------------//
+
+    //--------Managing Tag By Admins------------------------//
+    Route::get('/admin/communities/lists', 'AdminPanelController@Communities')->middleware('verified')->name('communities.admin.list');
+
+    //--------Managing Tag By Admins------------------------//
+
+    //--------Managing Tag By Admins------------------------//
+    Route::get('/admin/posts/lists', 'AdminPanelController@Posts')->middleware('verified')->name('posts.admin.list');
+
+    //--------Managing Tag By Admins------------------------//
+
+    //--------Managing Tag By Admins------------------------//
+    Route::get('/admin/comments/lists', 'AdminPanelController@Comments')->middleware('verified')->name('comments.admin.list');
+
+    //--------Managing Tag By Admins------------------------//
+
+    
+});
+
 Route::group([
     'prefix' => 'admin/{id}/thread',
     'middleware' => 'App\Http\Middleware\AdminMiddleware'
@@ -242,57 +349,6 @@ Route::group([
     //--------thread------------------------//
 });
 
-
-Route::group([
-    'prefix' => 'admin',
-    'middleware' => 'App\Http\Middleware\AdminMiddleware'
-], function () {
-
-    Route::get('/{id}/dashboard', 'AdminPanelController@index')->middleware('verified')->name('admin.dashboard');
-    //--------Export------------------------//
-
-    Route::get('/users/export', 'UserController@all')->middleware('verified')->name('admin.export.user');
-    Route::get('/export/users', 'UserController@export')->middleware('verified')->name('admin.export.users');
-
-    Route::get('/threads/export', 'ThreadController@all')->middleware('verified')->name('admin.export.thread');
-    Route::get('/export/threads', 'ThreadController@export')->middleware('verified')->name('admin.export.threads');
-
-    //--------Export------------------------//
-    
-    //--------Import------------------------//
-    Route::post('/import/threads', 'ThreadController@import')->middleware('verified')->name('admin.import.threads');
-    //--------Import------------------------//
-
-    //--------Managing Users------------------------//
-    Route::get('/member/lists', 'AdminPanelController@users')->middleware('verified');
-    Route::post('/member/lists', 'AdminPanelController@searchFullText')->middleware('verified')->name('search');
-    Route::get('/member/{id}/edit', 'AdminPanelController@editmember')->middleware('verified');
-    Route::post('/member/{id}/confirm', 'AdminPanelController@confirmMember')->middleware('verified');
-    Route::post('/member/{id}/update', 'AdminPanelController@updateusers')->middleware('verified');
-    Route::get('/member/{id}/delete', 'AdminPanelController@destroyusers')->middleware('verified');
-
-    //--------Managing Users------------------------//
-
-    //--------Managing Managers------------------------//
-    Route::get('/manager/lists', 'AdminPanelController@managers')->middleware('verified');
-    Route::get('/manager/{id}/edit', 'AdminPanelController@editmanager')->middleware('verified');
-    Route::post('/manager/{id}/confirm', 'AdminPanelController@confirmManager')->middleware('verified');
-    Route::post('/manager/{id}/update', 'AdminPanelController@updatemanagers')->middleware('verified');
-    Route::get('/manager/{id}/delete', 'AdminPanelController@destroymanagers')->middleware('verified');
-
-    //--------Managing Managers------------------------//
-
-    //--------Managing Admins------------------------//
-    Route::get('/{id}/lists', 'AdminPanelController@admins')->middleware('verified');
-    Route::get('/admin/{id}/edit', 'AdminPanelController@editadmin')->middleware('verified');
-    Route::post('/admin/{id}/confirm', 'AdminPanelController@confirmforAdmin')->middleware('verified');
-    Route::post('/admin/{id}/update', 'AdminPanelController@updateadmins')->middleware('verified');
-    Route::get('/admin/{id}/delete', 'AdminPanelController@destroyadmins')->middleware('verified');
-
-    //--------Managing Admins------------------------//
-
-    
-});
 Route::group([
     'prefix' => 'admin/tag',
     'middleware' => 'App\Http\Middleware\AdminMiddleware'
@@ -462,6 +518,7 @@ Route::group([
  
     //--------Post------------------------//
 });
+
 //--------For ADMIN-------------------------------------------------------------------------------------------------//
 
 

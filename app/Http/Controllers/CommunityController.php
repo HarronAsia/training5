@@ -19,6 +19,8 @@ use App\Repositories\Post\PostRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Repositories\Comment\CommentRepositoryInterface;
 use App\Repositories\Community\CommunityRepositoryInterface;
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
 
 class CommunityController extends Controller
 {
@@ -26,14 +28,18 @@ class CommunityController extends Controller
     protected $postRepo;
     protected $userRepo;
     protected $commRepo;
+    protected $profileRepo;
+    protected $notiRepo;
 
-    public function __construct(CommunityRepositoryInterface $commuRepo, PostRepositoryInterface $postRepo, UserRepositoryInterface $userRepo, CommentRepositoryInterface $commRepo)
+    public function __construct(CommunityRepositoryInterface $commuRepo, PostRepositoryInterface $postRepo, UserRepositoryInterface $userRepo, CommentRepositoryInterface $commRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
         $this->middleware('auth');
         $this->commuRepo = $commuRepo;
         $this->postRepo = $postRepo;
         $this->userRepo = $userRepo;
         $this->commRepo = $commRepo;
+        $this->profileRepo = $profileRepo;
+        $this->notiRepo = $notiRepo;
     }
 
     /**
@@ -45,8 +51,9 @@ class CommunityController extends Controller
     {
 
         $communities = $this->commuRepo->showall();
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('confirms.Community.homepage', compact('communities', 'notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Community.homepage', compact('communities', 'notifications', 'profile'));
     }
 
     /**
@@ -57,7 +64,8 @@ class CommunityController extends Controller
     public function create()
     {
         $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('confirms.Community.add_community', compact('notifications'));
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Community.add_community', compact('notifications','profile'));
     }
 
     /**
@@ -105,9 +113,10 @@ class CommunityController extends Controller
         $community = $this->commuRepo->showcommunity($id);
         $posts = $this->postRepo->showall($community->id);
 
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
 
-        return view('confirms.Community.index', compact('community', 'posts', 'notifications'));
+        return view('confirms.Community.index', compact('community', 'posts', 'notifications','profile'));
     }
 
     /**
@@ -119,8 +128,9 @@ class CommunityController extends Controller
     public function edit($id)
     {
         $community = $this->commuRepo->showcommunity($id);
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('confirms.Community.edit_community', compact('community', 'notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Community.edit_community', compact('community', 'notifications','profile'));
     }
 
     /**
@@ -177,7 +187,7 @@ class CommunityController extends Controller
      */
     public function destroy($id)
     {
-  
+
         $this->commuRepo->deletecommunity($id);
         $community = $this->commuRepo->getTrash($id);
         $community->notify(new DeleteCommunityNotification());

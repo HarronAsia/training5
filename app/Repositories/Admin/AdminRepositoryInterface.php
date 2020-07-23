@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repositories\Admin;
 
 use App\Http\Requests\StoreAdmin;
@@ -11,7 +12,12 @@ interface AdminRepositoryInterface
     public function countAllAdmins();
     public function countAllThreadsByManager();
     public function countAllThreadsByAdmin();
-
+    public function countAllTags();
+    public function countAllForums();
+    public function countAllCategories();
+    public function countAllCommunities();
+    public function countAllPosts();
+    public function countAllComments();
     //Count//
 
 
@@ -29,9 +35,9 @@ interface AdminRepositoryInterface
 
     //*===============Main Edit=============================*//
     public function findAccount($id);
-    
+
     public function confirmAdmin(StoreAdmin $request, $id);
-    
+
     //*===============Main Edit=============================*//
 
     //*===============Main Update=============================*//

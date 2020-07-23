@@ -38,9 +38,40 @@ class AdminRepository extends BaseRepository implements AdminRepositoryInterface
     {
         return $this->model->managers_threads = DB::table('threads')->join('users', 'user_id', '=', 'users.id')->get()->where('role', '"manager"')->count();
     }
+    
     public function countAllThreadsByAdmin()
     {
         return $this->model->admins_threads = DB::table('threads')->join('users', 'user_id', '=', 'users.id')->get()->where('role', '"admin"')->count();
+    }
+
+    public function countAllTags()
+    {
+        return $this->model->tags = DB::table('tags')->get()->count();
+    }
+
+    public function countAllForums()
+    {
+        return $this->model->forums = DB::table('forums')->get()->count();
+    }
+
+    public function countAllCategories()
+    {
+        return $this->model->categories = DB::table('categories')->get()->count();
+    }
+
+    public function countAllCommunities()
+    {
+        return $this->model->communities = DB::table('communities')->get()->count();
+    }
+
+    public function countAllPosts()
+    {
+        return $this->model->posts = DB::table('posts')->get()->count();
+    }
+
+    public function countAllComments()
+    {
+        return $this->model->comments = DB::table('comments')->get()->count();
     }
 
     //*===============Count =============================*//

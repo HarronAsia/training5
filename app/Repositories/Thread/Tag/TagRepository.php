@@ -51,4 +51,9 @@ class TagRepository extends BaseRepository implements TagRepositoryInterface
         
         return $this->model = Tag::withTrashed()->find($id);
     }
+    
+    public function getAllTags()
+    {
+        return $this->model = DB::table('tags')->paginate(5);
+    }
 }

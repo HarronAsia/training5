@@ -44,4 +44,9 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
         
         return $this->model = Post::withTrashed()->find($id);
     }
+
+    public function getAllPosts()
+    {
+        return $this->model = DB::table('posts')->paginate(5);
+    }
 }

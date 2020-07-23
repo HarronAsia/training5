@@ -41,7 +41,7 @@ class ThreadRepository extends BaseRepository implements ThreadRepositoryInterfa
 
     public function getTrash($id)
     {
-        
+
         return $this->model = Thread::withTrashed()->find($id);
     }
 
@@ -58,7 +58,7 @@ class ThreadRepository extends BaseRepository implements ThreadRepositoryInterfa
 
     public function allThreads()
     {
-        return $this->model = DB::table('threads')->join('users', 'user_id', 'users.id')->get()->where('role', '!=', 'member');
+        return $this->model = DB::table('threads')->paginate(5);
     }
 
     public function count_users($id)
@@ -67,5 +67,16 @@ class ThreadRepository extends BaseRepository implements ThreadRepositoryInterfa
         return $numbers = DB::table('users')->get()->where('join_id', '=', $id)->count();
 
         $this->model = DB::table('threads')->where('id', '=', $id)->update(['count_id' => $numbers]);
+    }
+
+    public function getAllThreadsByManager()
+    {
+        return $this->model = DB::table('threads')->join('users', 'user_id', '=', 'users.id')->where('role', '"manager"')->select('threads.*')->paginate(5);
+    }
+
+    public function getAllThreadsByAdmin()
+    {
+
+        return $this->model = DB::table('threads')->join('users', 'user_id', '=', 'users.id')->where('role', '"admin"')->select('threads.*')->paginate(5);
     }
 }

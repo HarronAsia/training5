@@ -71,6 +71,12 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Comment\CommentRepository::class
 
         );
+
+        $this->app->singleton(
+            \App\Repositories\Notification\NotificationRepositoryInterface::class,
+            \App\Repositories\Notification\NotificationRepository::class
+
+        );
     }
 
     /**

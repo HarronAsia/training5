@@ -4,6 +4,7 @@ namespace App\Repositories\Category;
 
 use App\Repositories\BaseRepository;
 use App\Models\Category;
+use Illuminate\Support\Facades\DB;
 
 class CategoryRepository extends BaseRepository implements CategoryRepositoryInterface
 {
@@ -43,4 +44,8 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
         return $this->model = Category::withTrashed()->find($id);
     }
    
+    public function getAllCategories()
+    {
+        return $this->model = DB::table('categories')->paginate(5);
+    }
 }

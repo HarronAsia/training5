@@ -10,4 +10,6 @@ interface CommentRepositoryInterface
 
     public function deletecomment($id);
     public function restorecomment($id);
+
+    public function getAllComments();
 }

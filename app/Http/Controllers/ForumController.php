@@ -17,20 +17,25 @@ use Illuminate\Support\Facades\Auth;
 use App\Repositories\Forum\ForumRepositoryInterface;
 use App\Repositories\Thread\ThreadRepositoryInterface;
 use App\Repositories\Category\CategoryRepositoryInterface;
-
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
 
 class ForumController extends Controller
 {
     protected $forumRepo;
     protected $cateRepo;
     protected $threadRepo;
+    protected $profileRepo;
+    protected $notiRepo;
 
-    public function __construct(ThreadRepositoryInterface $threadRepo, CategoryRepositoryInterface $cateRepo, ForumRepositoryInterface $forumRepo)
+    public function __construct(ThreadRepositoryInterface $threadRepo, CategoryRepositoryInterface $cateRepo, ForumRepositoryInterface $forumRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
         $this->middleware('auth');
         $this->forumRepo = $forumRepo;
         $this->cateRepo = $cateRepo;
         $this->threadRepo = $threadRepo;
+        $this->profileRepo = $profileRepo;
+        $this->notiRepo = $notiRepo;
     }
 
     /**
@@ -51,9 +56,9 @@ class ForumController extends Controller
     {
 
         $category = $this->cateRepo->showcategory($id);
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-
-        return view('confirms.Forum.add_forum', compact('category', 'notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Forum.add_forum', compact('category', 'notifications', 'profile'));
     }
 
     /**
@@ -90,9 +95,9 @@ class ForumController extends Controller
 
         $forum = $this->forumRepo->showforum($id);
         $threads = $this->threadRepo->getallThreads($threadid);
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-
-        return view('confirms.Forum.Thread.homepage', compact('threads', 'forum', 'notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Forum.Thread.homepage', compact('threads', 'forum', 'notifications','profile'));
     }
 
     /**
@@ -104,8 +109,9 @@ class ForumController extends Controller
     public function edit($id)
     {
         $forum = $this->forumRepo->showforum($id);
-        $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
-        return view('confirms.Category.Forum.edit', compact('forum', 'notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Category.Forum.edit', compact('forum', 'notifications','profile'));
     }
 
     /**
@@ -138,13 +144,13 @@ class ForumController extends Controller
      */
     public function destroy($id)
     {
-        
+
         $this->forumRepo->deleteForums($id);
         $forum = $this->forumRepo->getTrash($id);
         $forum->notify(new DeleteForumNotification());
-        $category = $this->cateRepo->showcategory($forum->category_id);
+        
 
-        return redirect()->route('category.index', $category->id);
+        return redirect()->back();
     }
 
     public function restore($id)
@@ -154,8 +160,8 @@ class ForumController extends Controller
 
         $forum = $this->forumRepo->showforum($id);
         $forum->notify(new RestoreForumNotification());
-        $category = $this->cateRepo->showcategory($forum->category_id);
         
-        return redirect()->route('category.index', $category->id);
+
+        return redirect()->back();
     }
 }

@@ -40,6 +40,9 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
         
     }
 
-    
+    public function getAllComments()
+    {
+        return $this->model = DB::table('comments')->paginate(5);
+    }
    
 }

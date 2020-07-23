@@ -12,4 +12,6 @@ interface TagRepositoryInterface
     public function deletetag($id);
     public function restoretag($id);
     public function getTrash($id);
+
+    public function getAllTags();
 }

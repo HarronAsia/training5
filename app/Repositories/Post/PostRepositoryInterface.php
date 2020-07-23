@@ -11,4 +11,5 @@ interface PostRepositoryInterface
     public function restorepost($id);
 
     public function getTrash($id);
+    public function getAllPosts();
 }

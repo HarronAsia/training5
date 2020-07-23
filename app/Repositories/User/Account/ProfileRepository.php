@@ -16,5 +16,13 @@ class ProfileRepository extends BaseRepository implements ProfileRepositoryInter
         return \App\Models\Profile::class;
     }
 
-    
+    public function getProfile($id)
+    {
+        return $this->model = Profile::get()->where("user_id",$id);
+    }
+
+    public function showProfile($id)
+    {
+        return $this->model = Profile::findOrFail($id);
+    }
 }

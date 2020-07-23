@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreCategory;
 
@@ -14,18 +14,24 @@ use App\Notifications\Category\RestoreCategoryNotification;
 
 use App\Repositories\Forum\ForumRepositoryInterface;
 use App\Repositories\Category\CategoryRepositoryInterface;
+use App\Repositories\User\Account\ProfileRepositoryInterface;
+use App\Repositories\Notification\NotificationRepositoryInterface;
 
 class CategoryController extends Controller
 {
 
     protected $cateRepo;
     protected $forumRepo;
+    protected $profileRepo;
+    protected $notiRepo;
 
-    public function __construct(CategoryRepositoryInterface $cateRepo,ForumRepositoryInterface $forumRepo)
+    public function __construct(CategoryRepositoryInterface $cateRepo, ForumRepositoryInterface $forumRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
         $this->middleware('auth');
         $this->cateRepo = $cateRepo;
         $this->forumRepo = $forumRepo;
+        $this->profileRepo = $profileRepo;
+        $this->notiRepo = $notiRepo;
     }
 
     /**
@@ -35,7 +41,6 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        
     }
 
     /**
@@ -45,8 +50,9 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
-        return view('confirms.Category.add_category',compact('notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Category.add_category', compact('notifications', 'profile'));
     }
 
     /**
@@ -66,10 +72,10 @@ class CategoryController extends Controller
 
         $category->save();
 
-      
+
         $category->notify(new AddCategoryNotification);
-        $notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
-        return Redirect('/')->with('notifications',$notifications);
+        
+        return redirect()->route('home');
     }
 
     /**
@@ -82,8 +88,9 @@ class CategoryController extends Controller
     {
         $category = $this->cateRepo->showcategory($id);
         $forums = $this->forumRepo->showall($category->id);
-        $notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
-        return view('confirms.Category.Forum.homepage',compact('category','forums','notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Category.Forum.homepage', compact('category', 'forums', 'notifications','profile'));
     }
 
     /**
@@ -95,8 +102,9 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $category = $this->cateRepo->showcategory($id);
-        $notifications = DB::table('notifications')->get()->where('read_at','==',NULL);
-        return view('confirms.Category.edit_category',compact('category','notifications'));
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Category.edit_category', compact('category', 'notifications','profile'));
     }
 
     /**
@@ -106,7 +114,7 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(StoreCategory $request,$id)
+    public function update(StoreCategory $request, $id)
     {
         $data = $request->validated();
 
@@ -117,7 +125,7 @@ class CategoryController extends Controller
 
         $category->save();
         $category->notify(new EditCategoryNotification());
-        return redirect('/');
+        return redirect()->route('home');
     }
 
     /**
@@ -130,9 +138,9 @@ class CategoryController extends Controller
     {
         $this->cateRepo->deletecategory($id);
         $category = $this->cateRepo->getTrash($id);
-        
+
         $category->notify(new DeleteCategoryNotification());
-        return redirect('/');
+        return redirect()->back();
     }
 
     public function restore($id)
@@ -140,6 +148,6 @@ class CategoryController extends Controller
         $this->cateRepo->restorecategory($id);
         $category = $this->cateRepo->showcategory($id);
         $category->notify(new RestoreCategoryNotification());
-        return redirect('/');
+        return redirect()->back();
     }
 }
