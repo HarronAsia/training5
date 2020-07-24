@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Repositories\Thread\ThreadRepositoryInterface;
 use App\Repositories\User\Account\ProfileRepositoryInterface;
 use App\Repositories\Notification\NotificationRepositoryInterface;
+use App\Repositories\Report\ReportRepositoryInterface;
 
 class ReportController extends Controller
 {
@@ -17,12 +18,15 @@ class ReportController extends Controller
     protected $threadRepo;
     protected $profileRepo;
     protected $notiRepo;
+    protected $repoRepo;
 
-    public function __construct(ThreadRepositoryInterface $threadRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
+    public function __construct(ThreadRepositoryInterface $threadRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo,
+                                ReportRepositoryInterface $repoRepo)
     {
         $this->threadRepo = $threadRepo;
         $this->profileRepo = $profileRepo;
         $this->notiRepo = $notiRepo;
+        $this->repoRepo = $repoRepo;
     }
     /**
      * Display a listing of the resource.
@@ -31,7 +35,7 @@ class ReportController extends Controller
      */
     public function index()
     {
-        //
+       
     }
 
     /**
@@ -111,6 +115,16 @@ class ReportController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $this->repoRepo->deleteReport($id);
+        
+        
+        return redirect()->back();
+    }
+
+    public function restore($id)
+    {
+        $this->repoRepo->restoreReport($id);
+        
+        return redirect()->back();
     }
 }

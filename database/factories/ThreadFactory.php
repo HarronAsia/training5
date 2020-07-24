@@ -8,20 +8,11 @@ use App\Models\Thread;
 
 use Faker\Generator as Faker;
 use Illuminate\Support\Facades\File;
-
+use Illuminate\Support\Facades\Storage;
 
 $factory->define(Thread::class, function (Faker $faker) {
 
-    // $filepath = storage_path('app/public/thread/'.$faker->title.'/');
-    //     if(!File::exists( $filepath)){ 
-    //         File::makeDirectory( $filepath);
-    //     }
-    //     else
-    //     {
-    //         unlink($filepath);
-    //         File::makeDirectory( $filepath);
-    //     }
-    
+
     return [
 
         'user_id' => rand(1,10),
@@ -31,6 +22,6 @@ $factory->define(Thread::class, function (Faker $faker) {
         'detail' => $faker->paragraph,
         'status' => 'public',
         
-        // 'thumbnail' => $faker->image($filepath,640,480,null,false),
+        //'thumbnail' => $faker->image(Storage::makeDirectory(public_path()."thread/.$faker->title",0777),640,480,null,false),
     ];
 });

@@ -18,6 +18,7 @@ interface AdminRepositoryInterface
     public function countAllCommunities();
     public function countAllPosts();
     public function countAllComments();
+    public function countAllReports();
     //Count//
 
 

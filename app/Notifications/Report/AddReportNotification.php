@@ -3,7 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Report;
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Bus\Queueable;

@@ -107,6 +107,15 @@ class LikeController extends Controller
         return redirect()->route('community.show',$post->community_id);
     }
 
+    public function unlike($postid)
+    {
+        $post = $this->postRepo->showpost($postid);
+
+        $post->likes()->delete();
+       
+        return redirect()->back();
+    }
+
     public function likethread($threadid)
     {
         $thread = $this->threadRepo->showThread($threadid);
@@ -116,5 +125,14 @@ class LikeController extends Controller
         ]);
 
         return redirect()->route('thread.detail',[$thread->forum_id,$thread->id]);
+    }
+
+    public function unlikethread($threadid)
+    {
+        $thread = $this->threadRepo->showThread($threadid);
+
+        $thread->likes()->delete();
+       
+        return redirect()->back();
     }
 }

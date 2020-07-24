@@ -23,8 +23,9 @@ class CreateThreadsTable extends Migration
 
             $table->string('status')->nullable();
             $table->string('thumbnail')->nullable();
-
-            $table->tinyInteger('count_id')->nullable();
+            
+            $table->integer('count_id')->default(0);
+            
             $table->timestamps();
             $table->softDeletes();
 

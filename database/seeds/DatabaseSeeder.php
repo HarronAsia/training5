@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
         DB::table('users')->insert(
             [
                 'name' => 'admin',
-                'email' => 'hieuleminh0x0x@gmail.com',
+                'email' => 'admin@gmail.com',
                 'password' => bcrypt('123123123'),
                 'dob' => Carbon::now(),
                 'number' => '123123123',
@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
         DB::table('users')->insert(
             [
                 'name' => 'manager',
-                'email' => 'harron@asia.cybridge.jp',
+                'email' => 'manager@gmail.com',
                 'password' => bcrypt('123123123'),
                 'dob' => Carbon::now(),
                 'number' => '123123123',

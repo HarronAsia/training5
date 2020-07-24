@@ -4,7 +4,7 @@ namespace App\Repositories\Admin;
 
 use App\Repositories\BaseRepository;
 
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 use App\Http\Requests\StoreAdmin;
@@ -21,17 +21,17 @@ class AdminRepository extends BaseRepository implements AdminRepositoryInterface
     //*===============Count=============================*//
     public function countAllUsers()
     {
-        return $this->model->users = User::all()->where('role', 'member')->count();
+        return $this->model->users = DB::table('users')->where('role','"member"')->count();
     }
 
     public function countAllManagers()
     {
-        return $this->model->managers = User::all()->where('role', 'manager')->count();
+        return $this->model->managers = DB::table('users')->where('role','"manager"')->count();
     }
 
     public function countAllAdmins()
     {
-        return $this->model->admins = User::all()->where('role', 'admin')->count();
+        return $this->model->admins = DB::table('users')->where('role','"admin"')->count();
     }
 
     public function countAllThreadsByManager()
@@ -72,6 +72,10 @@ class AdminRepository extends BaseRepository implements AdminRepositoryInterface
     public function countAllComments()
     {
         return $this->model->comments = DB::table('comments')->get()->count();
+    }
+    public function countAllReports()
+    {
+        return $this->model->comments = DB::table('reports')->get()->count();
     }
 
     //*===============Count =============================*//

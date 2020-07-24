@@ -4,7 +4,6 @@ namespace App\Repositories\Comment;
 
 use App\Repositories\BaseRepository;
 use App\Models\Comment;
-use Illuminate\Support\Facades\DB;
 
 class CommentRepository extends BaseRepository implements CommentRepositoryInterface
 {
@@ -16,7 +15,7 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
 
     public function showall($id)
     {
-        return $this->model = DB::table('comments')->get()->where('commentable_id','=',$id);
+        return $this->model = Comment::withTrashed()->get()->where('commentable_id','=',$id);
     }
 
     public function showComment($id)
@@ -36,13 +35,12 @@ class CommentRepository extends BaseRepository implements CommentRepositoryInter
     {
        
         return $this->model = Comment::onlyTrashed()->where('id',$id)->restore();
-            
-        
+                  
     }
 
     public function getAllComments()
     {
-        return $this->model = DB::table('comments')->paginate(5);
+        return $this->model = Comment::withTrashed()->paginate(5);
     }
    
 }

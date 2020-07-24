@@ -23,11 +23,20 @@
             @if (Auth::user()->role == "member")
 
             @else
-            @if (Auth::user()->role == "manager")
-            <a href="#" class="btn btn-info">Follow {{$community->title}}</a>
-            @else
-            <a href="#" class="btn btn-info">Follow {{$community->title}}</a>
-            @endif
+
+            <div>
+
+                @foreach($follower as $person)
+                @if ($person->follower_id == Auth::user()->id)
+                <a href="{{route('unfollow.community',['userid'=>Auth::user()->id,'communityid'=>$community->id])}}" class="btn btn-danger"> Stop getting Notification</a>
+                @else
+
+                @endif
+
+                @endforeach
+                <a href="{{route('follow.community',['userid'=>Auth::user()->id,'communityid'=>$community->id])}}" class="btn btn-success">Get Notification</a>
+            </div>
+
             @endif
 
 
@@ -64,12 +73,9 @@
                 <div class="form-group">
                     <input type="submit" class="form-control form-control-lg" class="btn btn-success btn-block btn-lg">
                 </div>
-                @if(Auth::user()->role == "manager")
             </form>
-            @else
-        </form>
-        @endif
-        @endif
+            @endif
+
 
     </div>
     <br>
@@ -130,18 +136,40 @@
             </div>
 
             <div>
+                @if($post->image == NULL)
+                <img src="{{asset('storage/blank.png')}}" alt="Image">
+                @else
                 <img src="{{asset('storage/post/'.$post->user_id.'/'.$post->image.'/')}}" alt="Image" style="max-width: 600px ; max-height:600px;">
+                @endif
             </div>
 
             <div>
 
                 <div>
+                    @foreach($post->likes as $like)
+                    @if($like->user_id == Auth::user()->id)
+                    @if(Auth::user()->role == "manager")
+                    <a href="{{route('manager.unlike.post',['postid' => $post->id])}}" style="color: crimson;">
+                        @else
+                        <a href="{{route('admin.unlike.post',['postid' => $post->id])}}" style="color: crimson;">
+                            @endif
+                            <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>UnLike</span>&nbsp;&nbsp;{{$post->likes->count()}}</button>
+                        </a>
 
-                    <a href="{{route('admin.like.post',['postid' => $post->id])}}" style="color: crimson;">
-                        <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Like</span>&nbsp;&nbsp;{{$post->likes->count()}}</button>
-                    </a>
+                        @else
 
-                    <i class="fa fa-commenting-o" aria-hidden="true"></i><span>Comment</span>
+                        @endif
+                        @endforeach
+
+                        @if(Auth::user()->role == "manager")
+                        <a href="{{route('manager.like.post',['postid' => $post->id])}}" style="color: green;">
+                            @else
+                            <a href="{{route('admin.like.post',['postid' => $post->id])}}" style="color: green;">
+                                @endif
+                                <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Like</span>&nbsp;&nbsp;{{$post->likes->count()}}</button>
+                            </a>
+
+                            <i class="fa fa-commenting-o" aria-hidden="true"></i><span>Comment {{$post->comments('id')->count()}}</span>
 
                 </div>
                 <div>
@@ -167,40 +195,50 @@
                 </div>
 
             </div>
+            <h3 style="background-color: blue;">
+                All Comments
+            </h3>
             <div>
 
                 @foreach($post->comments as $comment)
 
                 @if(Auth::user()->role == 'admin')
                 <div>
-                    {{$comment->comment_detail}}
+                    <p>{{$comment->comment_detail}}</p>
+
                 </div>
-                <br>
+
                 <div>
-                    <img src="{{asset('storage/comment/'.$comment->user_id.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+                    @if($comment->comment_image == NULL)
+                    <img src="{{asset('storage/blank.png')}}" alt="Image" style="max-width: 200px ; max-height:200px;">
+                    @else
+                    <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+                    @endif
+
+                    @if($comment->deleted_at != NULL)
+                    <div class="pull-right">
+                        <a href="{{route('admin.comment.restore',['postid' => $post->id,'commentid'=>$comment->id])}}">
+                            <button type="button" class="btn btn-success btn-lg">
+                                <i class="fa fa-undo"></i>
+                            </button>
+                        </a>
+                    </div>
+                    @else
+                    <div class="pull-right">
+                        <a href="{{route('admin.comment.edit',['postid' => $post->id,'commentid'=>$comment->id])}}">
+                            <button type="button" class="btn btn-info btn-lg">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                        </a>
+                        <a href="{{route('admin.comment.delete',['postid' => $post->id,'commentid'=>$comment->id])}}">
+                            <button type="button" class="btn btn-danger btn-lg">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </a>
+                    </div>
+                    @endif
                 </div>
-                @if($comment->deleted_at != NULL)
-                <div class="pull-right">
-                    <a href="{{route('admin.comment.edit',['postid' => $post->id,'commentid'=>$comment->id])}}">
-                        <button type="button" class="btn btn-success btn-lg">
-                            <i class="fa fa-undo"></i>
-                        </button>
-                    </a>
-                </div>
-                @else
-                <div class="pull-right">
-                    <a href="{{route('admin.comment.edit',['postid' => $post->id,'commentid'=>$comment->id])}}">
-                        <button type="button" class="btn btn-info btn-lg">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                    </a>
-                    <a href="{{route('admin.comment.delete',['postid' => $post->id,'commentid'=>$comment->id])}}">
-                        <button type="button" class="btn btn-danger btn-lg">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </a>
-                </div>
-                @endif
+
                 @else
                 @if($comment->deleted_at != NULL)
 
@@ -208,18 +246,41 @@
                 <div>
                     {{$comment->comment_detail}}
                 </div>
-                <br>
-                <div>
-                    <img src="{{asset('storage/comment/'.$comment->user_id.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
-                </div>
-                @endif
 
+                <div>
+                    @if($comment->comment_image == NULL)
+                    <img src="{{asset('storage/blank.png')}}" alt="Image" style="max-width: 200px ; max-height:200px;">
+                    @else
+                    <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+                    @endif
+
+                    @if(Auth::user()->id == $comment->user_id)
+                    <div class="pull-right">
+                        <a href="{{route('manager.comment.edit',['postid' => $post->id,'commentid'=>$comment->id])}}">
+                            <button type="button" class="btn btn-info btn-lg">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                        </a>
+                        <a href="{{route('manager.comment.delete',['postid' => $post->id,'commentid'=>$comment->id])}}">
+                            <button type="button" class="btn btn-danger btn-lg">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </a>
+                    </div>
+                    @else
+
+                    @endif
+                    @endif
+
+                </div>
                 @endif
                 @endforeach
             </div>
-            <hr>
-        </div>
 
+        </div>
+        <h3 style="background-color: wheat;">
+            &nbsp;
+        </h3>
         @endforeach
 
     </div>

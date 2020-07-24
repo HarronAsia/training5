@@ -77,6 +77,18 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Notification\NotificationRepository::class
 
         );
+
+        $this->app->singleton(
+            \App\Repositories\Follower\FollowerRepositoryInterface::class,
+            \App\Repositories\Follower\FollowerRepository::class
+
+        );
+
+        $this->app->singleton(
+            \App\Repositories\Report\ReportRepositoryInterface::class,
+            \App\Repositories\Report\ReportRepository::class
+
+        );
     }
 
     /**

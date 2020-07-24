@@ -14,6 +14,8 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
         return Notification::class;
     }
 
+
+
     public function showall()
     {
         return $this->model = DB::table('notifications')->withTrashed()->paginate(10);
@@ -23,4 +25,6 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
     {
        return $this->model = DB::table('notifications')->get()->where('read_at', '==', NULL);
     }
+
+
 }

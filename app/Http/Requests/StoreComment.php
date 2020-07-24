@@ -25,7 +25,7 @@ class StoreComment extends FormRequest
     {
         return [
             'comment_detail' => 'required',
-            'comment_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'comment_image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 }

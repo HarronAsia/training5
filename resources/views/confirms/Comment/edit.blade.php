@@ -4,7 +4,12 @@
 <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
 <div class="container-fluid">
     <div class="row justify-content-center">
+        @if(Auth::user()->role == "manager")
+        <form action="{{route('manager.comment.update',['postid' => $post->id,'commentid'=>$comment->id])}}" method="POST" enctype="multipart/form-data">
+        @else
         <form action="{{route('admin.comment.update',['postid' => $post->id,'commentid'=>$comment->id])}}" method="POST" enctype="multipart/form-data">
+        @endif
+        
 
             @csrf
 

@@ -146,7 +146,11 @@
                             <td>{{$thread->id}}</td>
                             <td>
                                 <a href="{{ route('thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
+                                    @if($thread->thumbnail == NULL)
+                                    <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:200px ;height:200px;">
+                                    @else
                                     <img src="{{asset('storage/thread/'.$thread->title.'/'.$thread->thumbnail.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                                    @endif
                                 </a>
                             </td>
 

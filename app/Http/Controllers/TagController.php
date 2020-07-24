@@ -16,10 +16,6 @@ use App\Notifications\Tag\EditTagNotification;
 use App\Notifications\Tag\DeleteTagNotification;
 use App\Notifications\Tag\RestoreTagNotification;
 
-
-use Illuminate\Http\Request;
-
-
 class TagController extends Controller
 {
 
@@ -99,7 +95,10 @@ class TagController extends Controller
      */
     public function edit($id)
     {
-        //
+        $tag = $this->tagRepo->getTag($id);
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Thread.Tag.edit', compact('tag', 'notifications', 'profile'));
     }
 
     /**
@@ -109,9 +108,16 @@ class TagController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreTag $request, $id)
     {
-        //
+
+        $data = $request->validated();
+        $tag = $this->tagRepo->getTag($id);
+
+        $tag->name = $data['name'];
+        $tag->update();
+        $tag->notify(new EditTagNotification());
+        return redirect()->route('tags.admin.list');
     }
 
     /**
@@ -122,11 +128,17 @@ class TagController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $this->tagRepo->deletetag($id);
+        $tag = $this->tagRepo->getTrash($id);
+        $tag->notify(new DeleteTagNotification());
+        return redirect()->back();
     }
 
     public function restore($id)
     {
-        //
+        $this->tagRepo->restoretag($id);
+        $tag = $this->tagRepo->getTag($id);
+        $tag->notify(new RestoreTagNotification());
+        return redirect()->back();
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Thread;
 
-use App\User;
+use App\Models\User;
 use App\Models\Thread;
 use Illuminate\Support\Facades\Auth;
 

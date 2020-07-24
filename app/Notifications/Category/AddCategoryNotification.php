@@ -3,7 +3,7 @@
 namespace App\Notifications\Category;
 
 use App\Models\Category;
-use App\User;
+use App\Models\User;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\DB;

@@ -4,6 +4,7 @@ namespace App\Repositories\Thread;
 
 use App\Repositories\BaseRepository;
 use App\Models\Thread;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ThreadRepository extends BaseRepository implements ThreadRepositoryInterface
@@ -53,6 +54,7 @@ class ThreadRepository extends BaseRepository implements ThreadRepositoryInterfa
     public function showThread($id)
     {
 
+        DB::table('threads')->where('id', $id)->increment('count_id', 1);
         return $this->model = Thread::findOrFail($id);
     }
 

@@ -120,7 +120,7 @@ class PostController extends Controller
     public function edit($id, $postid)
     {
         $community = $this->commuRepo->showcommunity($id);
-        $notifications = $this->notiRepo->showUnread();
+        $notifications  = $this->notiRepo->showUnread();
         $post = $this->postRepo->showpost($postid);
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
         return view('confirms.Community.Post.edit', compact('post', 'community', 'profile','notifications'));

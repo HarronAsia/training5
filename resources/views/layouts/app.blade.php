@@ -48,6 +48,7 @@
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <span class="sr-only">Toggle navigation</span>
                 </a>
+
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
 
@@ -56,11 +57,12 @@
                             <!-- Menu Toggle Button -->
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-bell-o" style="color: black;"></i>
-                                <span class=" hidden-xs" style="color: red;">{{$notifications->count()}}</span>
+                                <span class=" hidden-xs" style="color: red;">{{$notifications->count() ?? '0'}}</span>
                             </a>
 
                             <ul class="dropdown-menu">
-                                @foreach($notifications as $notification)
+                             
+                                @foreach($notifications  as $notification)
 
                                 <li class="user-footer">
                                     <p>{{$notification->notifiable_type}}</p>
@@ -75,6 +77,7 @@
                         </li>
                     </ul>
                 </div>
+                
                 <!-- Navbar Right Menu -->
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
@@ -199,6 +202,7 @@
             </div>
         </div>
     </div>
+    
     @endif
 
     <!-- jQuery 3.1.1 -->

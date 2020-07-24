@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Forum;
 
-use App\User;
+use App\Models\User;
 use App\Models\Forum;
 
 use Illuminate\Bus\Queueable;

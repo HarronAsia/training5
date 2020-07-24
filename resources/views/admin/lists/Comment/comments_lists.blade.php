@@ -27,6 +27,7 @@
                         <tr>
                             <th>No.</th>
                             <th>Detail</th>
+                            <th>Where</th>
                             <th>Created At </th>
                             <th>Last Updated</th>
                             <th>Deleted At</th>
@@ -37,21 +38,22 @@
                     <tbody>
                         @foreach ($comments as $comment)
                         <td>{{$comment->id}}</td>
-                        <td>{{$comment->comment Detail}}</td>
+                        <td>{{$comment->comment_detail}}</td>
+                        <td>{{$comment->commentable_type}}</td>
                         <td>{{$comment->created_at}}</td>
                         <td>{{$comment->updated_at}}</td>
                         <td>{{$comment->deleted_at}}</td>
                         <td>
-                            @if($comment->banner != NULL)
-                            <img src="{{asset('storage/comment/'.$comment->user_id.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+                            @if($comment->comment_image == NULL)
+                            <img src="{{asset('storage/blank.png')}}" alt="Image" style="max-width: 200px ; max-height:200px;">
                             @else
-                            <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:200px ;height:200px;">
+                            <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
                             @endif
                         </td>
                         <td>
                             @if($comment->deleted_at != NULL)
                             <div class="pull-right">
-                                <a href="">
+                                <a href="{{route('admin.comment.restore',['commentid'=>$comment->id])}}">
                                     <button type="button" class="btn btn-success btn-lg">
                                         <i class="fa fa-undo"></i>
                                     </button>
@@ -59,12 +61,12 @@
                             </div>
                             @else
                             <div class="pull-right">
-                                <a href="">
+                                <a href="{{route('admin.comment.edit',['commentid'=>$comment->id])}}">
                                     <button type="button" class="btn btn-info btn-lg">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </a>
-                                <a href="">
+                                <a href="{{route('admin.comment.delete',['commentid'=>$comment->id])}}">
                                     <button type="button" class="btn btn-danger btn-lg">
                                         <i class="fa fa-trash"></i>
                                     </button>

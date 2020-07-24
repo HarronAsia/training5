@@ -4,7 +4,7 @@ namespace App\Notifications\Post;
 
 use App\Models\Community;
 use App\Models\Post;
-use App\User;
+use App\Models\User;
 
 use Illuminate\Support\Facades\Auth;
 

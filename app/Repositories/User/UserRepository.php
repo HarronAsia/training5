@@ -4,7 +4,7 @@ namespace App\Repositories\User;
 
 use App\Repositories\BaseRepository;
 
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 
@@ -13,7 +13,7 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
     //lấy model tương ứng
     public function getModel()
     {
-        return \App\User::class;
+        return \App\Models\User::class;
     }
 
     public function showUser($id)

@@ -1,17 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-@if(Auth::user()->role != 'admin')
 
-@else
 
 <div class="container-fluid">
     <div class="row justify-content-center">
         <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
-        
-        @if(Auth::user()->role == "manager")
-        
-        <form action="{{ route('admin.post.update',['id' => $community->id,'postid'=>$post->id])}}" method="POST" enctype="multipart/form-data">
+
+        @if( Auth::user()->role == "manager")
+        <form action="{{ route('manager.post.update',['id' => $community->id,'postid'=>$post->id])}}" method="POST" enctype="multipart/form-data">
             @else
             <form action="{{ route('admin.post.update',['id' => $community->id,'postid'=>$post->id])}}" method="POST" enctype="multipart/form-data">
                 @endif
@@ -35,10 +32,11 @@
                 </div>
 
             </form>
-            
+
+
+
     </div>
 </div>
 
-@endif
 
 @endsection

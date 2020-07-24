@@ -18,9 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('auth/google', 'GoogleController@redirectToGoogle');
 Route::get('auth/google/callback', 'GoogleController@handleGoogleCallback');
@@ -31,17 +29,17 @@ Auth::routes(['verify' => true]);
 
 //--------Viewable Page------------------------//
 
-Route::get('/', 'HomeController@index')->name('home');
+
 
 Route::get('/{id}/mark-as-read', 'HomeController@readAt')->name('notification.read');
 
-Route::get('/{id}', 'CategoryController@show')->middleware('verified')->name('category.index');
+Route::get('/{id}', 'CategoryController@show')->name('category.index');
 
-Route::get('/{id}/{forumid}', 'ForumController@show')->middleware('verified')->name('forum.show');
+Route::get('/{id}/{forumid}', 'ForumController@show')->name('forum.show');
 
-Route::get('/{id}/thread/homepage', 'ThreadController@index')->middleware('verified')->name('thread.show');
+Route::get('/{id}/thread/homepage', 'ThreadController@index')->name('thread.show');
 
-Route::get('/{id}/thread/homepage/{threadid}', 'ThreadController@show')->middleware('verified')->name('thread.detail');
+Route::get('/{id}/thread/homepage/{threadid}', 'ThreadController@show')->name('thread.detail');
 
 //--------Viewable Page------------------------//
 
@@ -72,6 +70,14 @@ Route::post('/account/personal-details/{id}/update', 'ProfileController@update')
 
 //--------Account------------------------//
 
+//---------------Follower----------------------------/
+Route::get('/{userid}/follow/Thread/{threadid}','ThreadController@follow')->middleware('verified')->name('follow.thread');
+Route::get('/{userid}/unfollow/Thread/{threadid}','ThreadController@unfollow')->middleware('verified')->name('unfollow.thread');
+
+Route::get('/{userid}/follow/Community/{communityid}','CommunityController@follow')->middleware('verified')->name('follow.community');
+Route::get('/{userid}/unfollow/Community/{communityid}','CommunityController@unfollow')->middleware('verified')->name('unfollow.community');
+//---------------Follower----------------------------/
+
 //--------For MANAGER-------------------------------------------------------------------------------------------------//
 Route::group([
     'prefix' => 'manager/{id}/thread',
@@ -100,10 +106,6 @@ Route::group([
 
     //--------thread------------------------//
 
-    //--------Tag------------------------//
-    Route::get('/add', 'ThreadController@create')->middleware('verified')->name('manager.thread.add');
-    Route::post('/create', 'ThreadController@store')->middleware('verified')->name('manager.thread.create');
-    //--------Tag------------------------//
 });
 
 Route::group([
@@ -176,6 +178,19 @@ Route::group([
  
     //--------Post------------------------//
 });
+Route::group([
+    'prefix' => 'manager/{postid}/like',
+    'middleware' => 'App\Http\Middleware\ManagerMiddleware'
+], function () {
+
+    //--------Post------------------------//
+
+    Route::get('/post/like', 'LikeController@like')->middleware('verified')->name('manager.like.post');
+
+    Route::get('/post/unlike', 'LikeController@unlike')->middleware('verified')->name('manager.unlike.post');
+ 
+    //--------Post------------------------//
+});
 
 Route::group([
     'prefix' => 'manager/thread/{threadid}/Comment',
@@ -202,9 +217,9 @@ Route::group([
 
     //--------Post------------------------//
 
-    Route::get('/like', 'LikeController@like')->middleware('verified')->name('manager.like.post.thread');
+    Route::get('/like', 'LikeController@likethread')->middleware('verified')->name('manager.like.post.thread');
 
-    Route::get('/unlike', 'UnlikeController@unlike')->middleware('verified')->name('manager.unlike.post.thread');
+    Route::get('/unlike', 'UnlikeController@unlikethread')->middleware('verified')->name('manager.unlike.post.thread');
  
     //--------Post------------------------//
 });
@@ -291,30 +306,35 @@ Route::group([
 
     //--------Managing Tag By Admins------------------------//
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing Forum By Admins------------------------//
     Route::get('/admin/forums/lists', 'AdminPanelController@Forums')->middleware('verified')->name('forums.admin.list');
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing Forum By Admins------------------------//
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing Category By Admins------------------------//
     Route::get('/admin/categories/lists', 'AdminPanelController@Categories')->middleware('verified')->name('categories.admin.list');
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing Category By Admins------------------------//
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing Community By Admins------------------------//
     Route::get('/admin/communities/lists', 'AdminPanelController@Communities')->middleware('verified')->name('communities.admin.list');
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing Community By Admins------------------------//
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing Post By Admins------------------------//
     Route::get('/admin/posts/lists', 'AdminPanelController@Posts')->middleware('verified')->name('posts.admin.list');
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing Post By Admins------------------------//
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing Comment By Admins------------------------//
     Route::get('/admin/comments/lists', 'AdminPanelController@Comments')->middleware('verified')->name('comments.admin.list');
 
-    //--------Managing Tag By Admins------------------------//
+    //--------Managing comment By Admins------------------------//
+
+     //--------Managing Reports By Admins------------------------//
+     Route::get('/admin/reports/lists', 'AdminPanelController@Reports')->middleware('verified')->name('reports.admin.list');
+
+     //--------Managing Reports By Admins------------------------//
 
     
 });
@@ -359,6 +379,14 @@ Route::group([
     Route::get('/add', 'TagController@create')->middleware('verified')->name('admin.tag.add');
 
     Route::post('/create', 'TagController@store')->middleware('verified')->name('admin.tag.create');
+
+    Route::get('/edit/{id}', 'TagController@edit')->middleware('verified')->name('admin.tag.edit');
+
+    Route::post('/update/{id}', 'TagController@update')->middleware('verified')->name('admin.tag.update');
+
+    Route::get('/delete/{id}', 'TagController@destroy')->middleware('verified')->name('admin.tag.delete');
+
+    Route::get('/restore/{id}', 'TagController@restore')->middleware('verified')->name('admin.tag.restore');
  
     //--------Tag------------------------//
 });
@@ -452,12 +480,11 @@ Route::group([
 });
 
 Route::group([
-    'prefix' => 'admin/{postid}/Comment',
+    'prefix' => 'admin/Post/{postid}/Comment',
     'middleware' => 'App\Http\Middleware\AdminMiddleware'
 ], function () {
 
     //--------Post------------------------//
-
     Route::post('/create', 'CommentController@store')->middleware('verified')->name('admin.comment.create');
 
     Route::get('/edit/{commentid}', 'CommentController@edit')->middleware('verified')->name('admin.comment.edit');
@@ -478,9 +505,9 @@ Route::group([
 
     //--------Post------------------------//
 
-    Route::get('/like', 'LikeController@like')->middleware('verified')->name('admin.like.post');
+    Route::get('/post/like', 'LikeController@like')->middleware('verified')->name('admin.like.post');
 
-    Route::get('/unlike', 'UnlikeController@unlike')->middleware('verified')->name('admin.unlike.post');
+    Route::get('/post/unlike', 'LikeController@unlike')->middleware('verified')->name('admin.unlike.post');
  
     //--------Post------------------------//
 });
@@ -512,13 +539,26 @@ Route::group([
 
     //--------Post------------------------//
 
-    Route::get('/like', 'LikeController@likethread')->middleware('verified')->name('admin.like.post.thread');
+    Route::get('/thread/like', 'LikeController@likethread')->middleware('verified')->name('admin.like.post.thread');
 
-    Route::get('/unlike', 'LikeController@unlikethread')->middleware('verified')->name('admin.unlike.post.thread');
+    Route::get('/thread/unlike', 'LikeController@unlikethread')->middleware('verified')->name('admin.unlike.post.thread');
  
     //--------Post------------------------//
 });
 
+Route::group([
+    'prefix' => 'admin/Report',
+    'middleware' => 'App\Http\Middleware\AdminMiddleware'
+], function () {
+
+    //--------Report------------------------//
+
+    Route::get('/delete/{id}', 'ReportController@destroy')->middleware('verified')->name('admin.report.delete');
+
+    Route::get('/restore/{id}', 'ReportController@restore')->middleware('verified')->name('admin.report.restore');
+ 
+    //--------Report------------------------//
+});
 //--------For ADMIN-------------------------------------------------------------------------------------------------//
 
 

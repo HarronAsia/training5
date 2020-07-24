@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+
 class StoreThread extends FormRequest
 {
     /**
@@ -23,8 +24,8 @@ class StoreThread extends FormRequest
      */
     public function rules()
     {
-        // dd(request()->all());
-        $this->redirect = 'admin/'.request()->forum_id.'/'.'thread/'.request()->id.'/edit' ;
+        //dd(request()->all());
+        $this->redirect = 'admin/'.request()->forum_id.'/thread/add' ;
         return [
             
 
@@ -35,6 +36,7 @@ class StoreThread extends FormRequest
             'status' => 'required',
             
         ];
+       
         
     }
 }

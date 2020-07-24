@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\User;
+use App\Models\User;
 use App\Models\Comment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Auth;

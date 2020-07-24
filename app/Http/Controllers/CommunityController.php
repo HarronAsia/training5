@@ -14,6 +14,8 @@ use App\Notifications\Community\AddCommunityNotification;
 use App\Notifications\Community\EditCommunityNotification;
 use App\Notifications\Community\DeleteCommunityNotification;
 use App\Notifications\Community\RestoreCommunityNotification;
+use App\Notifications\Community\GetFollowCommunityNotfication;
+use App\Notifications\Community\GetunFollowCommunityNotfication;
 
 use App\Repositories\Post\PostRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
@@ -21,6 +23,7 @@ use App\Repositories\Comment\CommentRepositoryInterface;
 use App\Repositories\Community\CommunityRepositoryInterface;
 use App\Repositories\User\Account\ProfileRepositoryInterface;
 use App\Repositories\Notification\NotificationRepositoryInterface;
+use App\Repositories\Follower\FollowerRepositoryInterface;
 
 class CommunityController extends Controller
 {
@@ -30,8 +33,10 @@ class CommunityController extends Controller
     protected $commRepo;
     protected $profileRepo;
     protected $notiRepo;
+    protected $followRepo;
 
-    public function __construct(CommunityRepositoryInterface $commuRepo, PostRepositoryInterface $postRepo, UserRepositoryInterface $userRepo, CommentRepositoryInterface $commRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
+    public function __construct(CommunityRepositoryInterface $commuRepo, PostRepositoryInterface $postRepo, UserRepositoryInterface $userRepo, 
+    CommentRepositoryInterface $commRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo,FollowerRepositoryInterface $followRepo)
     {
         $this->middleware('auth');
         $this->commuRepo = $commuRepo;
@@ -40,6 +45,7 @@ class CommunityController extends Controller
         $this->commRepo = $commRepo;
         $this->profileRepo = $profileRepo;
         $this->notiRepo = $notiRepo;
+        $this->followRepo = $followRepo;
     }
 
     /**
@@ -113,10 +119,12 @@ class CommunityController extends Controller
         $community = $this->commuRepo->showcommunity($id);
         $posts = $this->postRepo->showall($community->id);
 
-        $notifications = $this->notiRepo->showUnread();
+        $notifications  = $this->notiRepo->showUnread();
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
 
-        return view('confirms.Community.index', compact('community', 'posts', 'notifications','profile'));
+        $follower = $this->followRepo->showfollowerThread(Auth::user()->id,$community->id);
+
+        return view('confirms.Community.index', compact('community', 'posts', 'notifications','profile','follower'));
     }
 
     /**
@@ -200,6 +208,30 @@ class CommunityController extends Controller
         $this->commuRepo->restorecommunity($id);
         $community = $this->commuRepo->showcommunity($id);
         $community->notify(new RestoreCommunityNotification());
+        return redirect()->back();
+    }
+
+    public function follow($userid,$communityid)
+    {
+
+        $community = $this->commuRepo->showcommunity($communityid);
+        $user = $this->userRepo->showUser($userid);
+        
+        $user->following()->attach($community);
+        $community->notify(new GetFollowCommunityNotfication());
+       
+        return redirect()->back();
+    }
+
+    public function unfollow($userid,$communityid)
+    {
+
+        $community = $this->commuRepo->showcommunity($communityid);
+        $user = $this->userRepo->showUser($userid);
+        
+        $user->following()->detach($community);
+        $community->notify(new GetunFollowCommunityNotfication());
+       
         return redirect()->back();
     }
 }

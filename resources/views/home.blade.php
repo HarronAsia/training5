@@ -2,11 +2,6 @@
 
 @section('content')
 
-@if(Auth::user()->email_verified_at == NULL)
-<script>
-    window.location = "/email/verify";
-</script>
-@else
 <div class="container-fluid">
     <div class="row">
         <h1>Harron.vm</h1>
@@ -121,5 +116,5 @@
         {{ $categories->links() }}
     </div>
 </div>
-@endif
+
 @endsection

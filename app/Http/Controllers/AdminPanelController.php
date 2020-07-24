@@ -14,6 +14,7 @@ use App\Repositories\User\Account\ProfileRepositoryInterface;
 
 use App\Repositories\Notification\NotificationRepositoryInterface;
 use App\Repositories\Comment\CommentRepositoryInterface;
+use App\Repositories\Report\ReportRepositoryInterface;
 
 use App\Repositories\Category\CategoryRepositoryInterface;
 use App\Repositories\Forum\ForumRepositoryInterface;
@@ -30,7 +31,7 @@ class AdminPanelController extends Controller
 
     protected $notiRepo;
     protected $commRepo;
-
+    protected $repoRepo;
 
     protected $cateRepo;
     protected $forumRepo;
@@ -39,7 +40,9 @@ class AdminPanelController extends Controller
     protected $commuRepo;
     protected $postRepo;
 
-    public function __construct(AdminRepositoryInterface $adminRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo, ThreadRepositoryInterface $threadRepo, PostRepositoryInterface $postRepo, CommentRepositoryInterface $commRepo, CategoryRepositoryInterface $cateRepo, ForumRepositoryInterface $forumRepo, TagRepositoryInterface $tagRepo, CommunityRepositoryInterface $commuRepo)
+    public function __construct(AdminRepositoryInterface $adminRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo, 
+                            ThreadRepositoryInterface $threadRepo, PostRepositoryInterface $postRepo, CommentRepositoryInterface $commRepo, ReportRepositoryInterface $repoRepo,
+                            CategoryRepositoryInterface $cateRepo, ForumRepositoryInterface $forumRepo, TagRepositoryInterface $tagRepo, CommunityRepositoryInterface $commuRepo)
     {
         $this->middleware('auth');
         $this->adminRepo = $adminRepo;
@@ -48,6 +51,7 @@ class AdminPanelController extends Controller
 
         $this->notiRepo = $notiRepo;
         $this->commRepo = $commRepo;
+        $this->repoRepo = $repoRepo;
 
         $this->cateRepo = $cateRepo;
         $this->forumRepo = $forumRepo;
@@ -80,7 +84,10 @@ class AdminPanelController extends Controller
         $notifications = $this->notiRepo->showUnread();
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
 
-        return view('admin.dashboard', compact('users', 'managers', 'admins', 'categories', 'forums', 'managers_threads', 'admins_threads', 'tags', 'communities', 'posts', 'comments', 'notifications', 'profile'));
+        $reports = $this->adminRepo->countAllReports();
+
+        return view('admin.dashboard', compact('users', 'managers', 'admins', 'categories', 'forums', 'managers_threads', 'admins_threads', 'tags', 
+                                                'communities', 'posts', 'comments', 'notifications', 'profile','reports'));
     }
 
     /**
@@ -382,4 +389,17 @@ class AdminPanelController extends Controller
     }
 
     //*===============For Admins Comments=============================*//
+
+     //*===============For Admins Reports=============================*//
+     public function Reports()
+     {
+ 
+         $reports = $this->repoRepo->showall();
+ 
+         $notifications = $this->notiRepo->showUnread();
+         $profile = $this->profileRepo->getProfile(Auth::user()->id);
+         return view('admin.lists.Report.reports_lists', compact('reports', 'notifications', 'profile'));
+     }
+ 
+     //*===============For Admins Reports=============================*//
 }

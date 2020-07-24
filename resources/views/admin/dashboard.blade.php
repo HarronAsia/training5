@@ -282,7 +282,7 @@
                     <thead>
                         <tr>
                             <th>
-                                <a href="{{route('communities.admin.list')}}">
+                                <a href="{{route('comments.admin.list')}}">
                                     Number of Comments
                                 </a>
                             </th>
@@ -292,6 +292,36 @@
                     <tbody>
                         <td>
                             {{$comments}}
+                        </td>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-primary">
+        <hr>
+        <h3 class="card-header bg-primary d-flex justify-content-between">
+            Reports
+        </h3>
+
+        <div class="card-body">
+            <div class="table-responsive" id="showBlog">
+                <table class="table table-striped text-center">
+                    <thead>
+                        <tr>
+                            <th>
+                                <a href="{{route('reports.admin.list')}}">
+                                    Number of Reports
+                                </a>
+                            </th>
+    
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <td>
+                            {{$reports}}
                         </td>
 
                     </tbody>

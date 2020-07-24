@@ -3,7 +3,7 @@
 namespace App\Notifications\Community;
 
 use App\Models\Community;
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

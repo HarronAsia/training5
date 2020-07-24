@@ -3,7 +3,7 @@
 namespace App\Notifications\Forum;
 
 use App\Models\Forum;
-use App\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Bus\Queueable;

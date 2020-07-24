@@ -1,7 +1,6 @@
 <?php
 
-namespace App;
-
+namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -15,6 +14,8 @@ class User extends Authenticatable
      *
      * @var array
      */
+
+
     protected $fillable = [
         'name', 'email', 'password', 'photo', 'dob', 'number', 'role', 'google_id',
     ];
@@ -51,5 +52,11 @@ class User extends Authenticatable
     public function posts()
     {
         return $this->hasMany(Post::class);
+    }
+
+    // users that are followed this thread
+    public function following()
+    {
+        return $this->belongsToMany(Thread::class, 'followers', 'follower_id', 'following_id')->withTimestamps();
     }
 }

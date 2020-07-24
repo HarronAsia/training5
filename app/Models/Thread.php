@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\ThreadUser;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 
 class Thread extends Model
 {
-    use  SoftDeletes,Notifiable;
+    use  SoftDeletes, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -16,12 +17,12 @@ class Thread extends Model
      * @var array
      */
     protected $fillable = [
-        'title','detail', 'thumbnail','user_id','status','forum_id','tag_id'
+        'title', 'detail', 'thumbnail', 'user_id', 'status', 'forum_id', 'tag_id'
     ];
 
     public function users()
     {
-        return $this->belongsToMany('App\Models\User');
+        return $this->belongsToMany('App\Models\User', 'followers', 'following_id', 'follower_id')->withTimestamps();
     }
 
     public function tags()
@@ -43,5 +44,4 @@ class Thread extends Model
     {
         return $this->morphMany('App\Models\Report', 'reportable');
     }
-
 }

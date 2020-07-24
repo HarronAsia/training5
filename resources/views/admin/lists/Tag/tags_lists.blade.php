@@ -43,7 +43,7 @@
                         <td>
                             @if($tag->deleted_at != NULL)
                             <div class="pull-right">
-                                <a href="">
+                                <a href="{{ route('admin.tag.restore', ['id'=> $tag->id])}}">
                                     <button type="button" class="btn btn-success btn-lg">
                                         <i class="fa fa-undo"></i>
                                     </button>
@@ -51,14 +51,14 @@
                             </div>
                             @else
                             <div class="pull-right">
-                                <a href="">
+                                <a href="{{ route('admin.tag.edit', ['id'=> $tag->id])}}">
                                     <button type="button" class="btn btn-info btn-lg">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </a>
                             </div>
                             <div class="pull-right">
-                                <a href="">
+                                <a href="{{ route('admin.tag.delete', ['id'=> $tag->id])}}">
                                     <button type="button" class="btn btn-danger btn-lg">
                                         <i class="fa fa-trash"></i>
                                     </button>

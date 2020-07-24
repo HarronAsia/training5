@@ -28,25 +28,43 @@
 
             </p>
             @endif
+            <p>Views: {{$value->count_id}}</p>
+
             <h3>Tag: {{$tag->name}}</h3>
-            <hr>
+
             <!-- Date/Time -->
             <p>Posted on {{$value->created_at}}</p>
 
-            <hr>
+
             @if (Auth::user()->role == "member")
 
             @else
-            @if (Auth::user()->role == "manager")
-            <a href="#" class="btn btn-info">Get Notification</a>
-            @else
-            <a href="#" class="btn btn-info">Get Notification</a>
-            @endif
+
+
+            <div>
+
+
+                @foreach($follower as $person)
+                @if ($person->follower_id == Auth::user()->id)
+                <a href="{{route('unfollow.thread',['userid'=>Auth::user()->id,'threadid'=>$value->id])}}" class="btn btn-danger"> Stop getting Notification</a>
+                @else
+
+                @endif
+
+                @endforeach
+                <a href="{{route('follow.thread',['userid'=>Auth::user()->id,'threadid'=>$value->id])}}" class="btn btn-success">Get Notification</a>
+            </div>
+
             @endif
 
             <!-- thread Image -->
-            <img src="{{asset('storage/thread/'.$value->title.'/'.$value->thumbnail.'/')}}" alt="Image">
-
+            <p>
+                @if($value->thumbnail == NULL)
+                <img src="{{asset('storage/blank.png')}}" alt="Image">
+                @else
+                <img src="{{asset('storage/thread/'.$value->title.'/'.$value->thumbnail.'/')}}" alt="Image">
+                @endif
+            </p>
             <hr>
 
             <!-- thread Detail -->
@@ -60,10 +78,25 @@
     <div>
 
         <div>
+            @foreach($value->likes as $like)
+            @if($like->user_id == Auth::user()->id)
+                @if(Auth::user()->role == "manager")
+                <a href="{{route('manager.unlike.post.thread',['threadid' => $value->id])}}" style="color: crimson;">
+                    @else
+                    <a href="{{route('admin.unlike.post.thread',['threadid' => $value->id])}}" style="color: crimson;">
+                        @endif
+                        <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>UnLike</span>&nbsp;&nbsp;{{$value->likes->count()}}</button>
+                    </a>
+
+            @else
+
+            @endif
+            @endforeach
+
             @if(Auth::user()->role == "manager")
-            <a href="{{route('manager.like.post.thread',['threadid' => $value->id])}}" style="color: crimson;">
+            <a href="{{route('manager.like.post.thread',['threadid' => $value->id])}}" style="color: green;">
                 @else
-                <a href="{{route('admin.like.post.thread',['threadid' => $value->id])}}" style="color: crimson;">
+                <a href="{{route('admin.like.post.thread',['threadid' => $value->id])}}" style="color: green;">
                     @endif
                     <button class="like"> <i class="fa fa-heart" aria-hidden="true"></i>&nbsp;&nbsp;<span>Like</span>&nbsp;&nbsp;{{$value->likes->count()}}</button>
                 </a>
@@ -116,7 +149,11 @@
             </div>
             <br>
             <div>
+                @if($comment->comment_image == NULL)
+                <img src="{{asset('storage/blank.png')}}" alt="Image" style="max-width: 200px ; max-height:200px;">
+                @else
                 <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+                @endif
             </div>
             @if($comment->deleted_at != NULL)
             <div class="pull-right">
@@ -142,38 +179,38 @@
             @endif
 
             @else
-            @if($comment->deleted_at != NULL)
+                @if($comment->deleted_at != NULL)
 
-            @else
-            <div>
-                {{$comment->comment_detail}}
-            </div>
-            <br>
-            <div>
-                <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
-            </div>
-            @if(Auth::user()->id == $comment->user_id)
-            @if($comment->deleted_at != NULL)
+                @else
+                <div>
+                    {{$comment->comment_detail}}
+                </div>
+                <br>
+                <div>
+                    <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+                </div>
+                    @if(Auth::user()->id == $comment->user_id)
+                        @if($comment->deleted_at != NULL)
 
-            @else
-            <div class="pull-right">
-                <a href="{{route('manager.comment.edit.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
-                    <button type="button" class="btn btn-info btn-lg">
-                        <i class="fa fa-edit"></i>
-                    </button>
-                </a>
-                <a href="{{route('manager.comment.delete.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
-                    <button type="button" class="btn btn-danger btn-lg">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </a>
-            </div>
-            @endif
-            @else
+                        @else
+                        <div class="pull-right">
+                            <a href="{{route('manager.comment.edit.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
+                                <button type="button" class="btn btn-info btn-lg">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                            </a>
+                            <a href="{{route('manager.comment.delete.thread',['threadid' => $value->id,'commentid'=>$comment->id])}}">
+                                <button type="button" class="btn btn-danger btn-lg">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </a>
+                        </div>
+                        @endif
+                    @else
 
-            @endif
+                    @endif
 
-            @endif
+                @endif
 
             @endif
 

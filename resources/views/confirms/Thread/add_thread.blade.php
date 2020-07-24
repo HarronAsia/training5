@@ -4,7 +4,15 @@
 <div class="container-fluid">
     <div class="row justify-content-center">
         <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
-
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
         <div class="container">
             <div class="modal-dialog modal-dialog-centered">
 
