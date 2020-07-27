@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Excel;
 
-use App\Models\User;
 use App\Models\Forum;
 use App\Models\Thread;
 
@@ -13,9 +12,7 @@ use App\Exports\ThreadsExport;
 
 use App\Imports\ThreadsImport;
 use App\Http\Requests\StoreThread;
-
-use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Auth;
 
 use App\Notifications\Thread\AddThreadNotification;
 use App\Notifications\Thread\EditThreadNotification;
@@ -24,8 +21,7 @@ use App\Notifications\Thread\RestoreThreadNotification;
 use App\Notifications\Thread\GetFollowThreadNotfication;
 use App\Notifications\Thread\GetunFollowThreadNotfication;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+
 
 use App\Repositories\Forum\ForumRepositoryInterface;
 use App\Repositories\Thread\ThreadRepositoryInterface;
@@ -47,11 +43,16 @@ class ThreadController extends Controller
     protected $userRepo;
     protected $followRepo;
 
-    public function __construct(ThreadRepositoryInterface $threadRepo, TagRepositoryInterface $tagRepo, ForumRepositoryInterface $forumRepo, CommentRepositoryInterface $commRepo, 
-                                ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo,UserRepositoryInterface $userRepo,
-                                FollowerRepositoryInterface $followRepo)
-
-    {
+    public function __construct(
+        ThreadRepositoryInterface $threadRepo,
+        TagRepositoryInterface $tagRepo,
+        ForumRepositoryInterface $forumRepo,
+        CommentRepositoryInterface $commRepo,
+        ProfileRepositoryInterface $profileRepo,
+        NotificationRepositoryInterface $notiRepo,
+        UserRepositoryInterface $userRepo,
+        FollowerRepositoryInterface $followRepo
+    ) {
         $this->threadRepo = $threadRepo;
         $this->tagRepo = $tagRepo;
         $this->forumRepo = $forumRepo;
@@ -64,18 +65,25 @@ class ThreadController extends Controller
 
     public function index($id)
     {
+        if (Auth::guest()) {
+            $forum = $this->forumRepo->showforum($id);
 
-        $forum = $this->forumRepo->showforum($id);
+            $threads = $this->threadRepo->getallThreads($forum->id);
+            return view('confirms.Thread.homepage', compact('threads', 'forum'));
+        } else {
+            $forum = $this->forumRepo->showforum($id);
 
-        $threads = $this->threadRepo->getallThreads($forum->id);
+            $threads = $this->threadRepo->getallThreads($forum->id);
 
-        $notifications = $this->notiRepo->showUnread();
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Forum.Thread.homepage', compact('threads', 'forum', 'notifications', 'profile'));
+            $notifications = $this->notiRepo->showUnread();
+            $profile = $this->profileRepo->getProfile(Auth::user()->id);
+            return view('confirms.Thread.homepage', compact('threads', 'forum', 'notifications', 'profile'));
+        }
     }
 
     public function create($id)
     {
+        
         $forum = $this->forumRepo->showforum($id);
         $threads = $this->threadRepo->addThread();
         $tags = $this->tagRepo->showall();
@@ -93,7 +101,7 @@ class ThreadController extends Controller
         $thread = new Thread();
 
         $forum = Forum::findOrFail($id);
-        
+
 
         $data['user_id'] = Auth::user()->id;
 
@@ -109,16 +117,7 @@ class ThreadController extends Controller
             $thread->thumbnail->move($path, $filename);
         }
         $data['thumbnail'] = $filename;
-        // Session::put('tag_id', $data['tag_id']);
-        // Session::put('user_id', $data['user_id']);
-        // Session::put('forum_id', $forum->id);
-        // Session::put('title', $data['title']);
-        // Session::put('detail', $data['detail']);
-        // Session::put('status', $data['status']);
 
-        // Session::put('thumbnail', $data['thumbnail']);
-
-        // $thread = $value = Session::all();
         $thread->tag_id = $data['tag_id'];
         $thread->user_id = $data['user_id'];
         $thread->forum_id = $forum->id;
@@ -134,32 +133,39 @@ class ThreadController extends Controller
     }
     //Confirm Add thread-------------------------------------------------------------
 
-    public function store(StoreThread $request,$id)
+    public function store(Request $request, $id)
     {
-        dd($request);
-        $data = $request->validated();
+        
+        $data = $request;
         $thread = new Thread();
 
-        $thread->user_id = Session::get('user_id');
-        $thread->title = Session::get('title');
-        $thread->detail = Session::get('detail');
-        $thread->status = Session::get('status');
-        $thread->tag_id = Session::get('tag_id');
-        $thread->forum_id = Session::get('forum_id');
-        $thread->thumbnail  = Session::get('thumbnail');
-
+        $thread->user_id = $data['user_id'];
+        $thread->title = $data['title'];
+        $thread->detail = $data['detail'];
+        $thread->status = $data['status'];
+        $thread->tag_id = $data['tag_id'];
+        $thread->forum_id = $id;
+        $thread->thumbnail  = $data['thumbnail'];
+        
         $thread->save();
         $thread->notify(new AddThreadNotification());
-
-        return redirect()->route('thread.show', $id);
+        if(Auth::user()->role == 'manager')
+        {
+            return redirect()->route('manager.thread.show', $id);
+        }
+        else
+        {
+            return redirect()->route('admin.thread.show', $id);
+        }
+        
     }
 
     public function edit($id, $threadid)
     {
-        
+
         $forum = $this->forumRepo->showforum($id);
         $thread = $this->threadRepo->showThread($threadid);
-        
+
         $tags = $this->tagRepo->showall();
         $threadtag = $this->tagRepo->getTag($thread->tag_id);
 
@@ -174,92 +180,111 @@ class ThreadController extends Controller
         $data = $request->validated();
 
         $forum = $this->forumRepo->showforum($id);
-        $value = $this->threadRepo->showThread($threadid);
+
+        $thread = $this->threadRepo->showThread($threadid);
 
         $tag = $this->tagRepo->getTag($data['tag_id']);
 
-        $data['id'] =    $value->id;
-        $data['user_id'] =   $value->user_id;
-
-        Session::put('id', $data['id']);
-        Session::put('user_id', $data['user_id']);
-        Session::put('tag_id', $data['tag_id']);
-        Session::put('forum_id',  $forum->id);
-        Session::put('title', $data['title']);
-        Session::put('detail', $data['detail']);
-        Session::put('status', $data['status']);
-
-        $old_thumbnail = $value->thumbnail;
+        $thread->tag_id = $data['tag_id'];
+        $thread->forum_id = $forum->id;
+        $thread->title = $data['title'];
+        $thread->detail = $data['detail'];
+        $thread->status = $data['status'];
+        
+        $old_thumbnail = $thread->thumbnail;
 
         if ($request->hasFile('thumbnail')) {
 
-            $value->thumbnail = $request->file('thumbnail');
+            $thread->thumbnail = $request->file('thumbnail');
 
-            $extension = $value->thumbnail->getClientOriginalExtension();
-            $filename =  Session::get('title') . '.' . $extension;
+            $extension = $data['thumbnail']->getClientOriginalExtension();
+            $filename =  $data['title'] . '.' . $extension;
 
-            $path = storage_path('app/public/thread/' . Session::get('title') . '/');
+            $path = storage_path('app/public/thread/' . $data['title'] . '/');
 
             if (!file_exists($path . $filename)) {
 
-                $value->thumbnail->move($path, $filename);
+                $thread->thumbnail->move($path, $filename);
             } else if (!file_exists($path . $old_thumbnail)) {
 
-                $value->thumbnail->move($path, $filename);
+                $thread->thumbnail->move($path, $filename);
             } else {
 
                 unlink($path . $old_thumbnail);
-                $value->thumbnail->move($path, $filename);
+                $thread->thumbnail->move($path, $filename);
             }
         }
-        $value->thumbnail = $filename;
-        Session::put('thumbnail', $value->thumbnail);
+        $data['thumbnail'] = $filename;
+        $thread->thumbnail = $data['thumbnail'];
 
-        $thread = $value = Session::all();
         $notifications = $this->notiRepo->showUnread();
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
 
         return view('confirms.Thread.confirm_edit_thread', compact('thread', 'tag', 'forum', 'notifications', 'profile'));
     }
 
-    public function update($id, $threadid)
+    public function update(Request $request,$id, $threadid)
     {
-        $value = $this->threadRepo->showThread($threadid);
+        
+        $data = $request;
+        
+        $thread = $this->threadRepo->showThread($threadid);
 
-        $value->user_id = Session::get('user_id');
-        $value->title = Session::get('title');
-        $value->tag_id = Session::get('tag_id');
-        $value->forum_id = Session::get('forum_id');
-        $value->detail = Session::get('detail');
-        $value->status = Session::get('status');
-        $value->thumbnail  = Session::get('thumbnail');
+        $thread->user_id = $data['user_id'];
+        $thread->title = $data['title'];
+        $thread->tag_id = $data['tag_id'];
+        $thread->forum_id = $data['forum_id'];
+        $thread->detail = $data['detail'];
+        $thread->status = $data['status'];
+        $thread->thumbnail  = $data['thumbnail'];
 
-        $value->update();
-        $value->notify(new EditThreadNotification());
+        $thread->update();
+        $thread->notify(new EditThreadNotification());
 
-        return redirect()->route('thread.show', $id);
+        if(Auth::user()->role == 'manager')
+        {
+            return redirect()->route('manager.thread.show', $id);
+        }
+        else
+        {
+            return redirect()->route('admin.thread.show', $id);
+        }
+       
     }
 
 
 
     public function show($id, $threadid)
     {
-        $thread = $this->threadRepo->getThread($threadid);
 
-        $value = $this->threadRepo->showThread($threadid);
+        if (Auth::guest()) {
+            $thread = $this->threadRepo->getThread($threadid);
+
+            $value = $this->threadRepo->showThread($threadid);
+
+            $user = $this->userRepo->showUser($value->user_id);
+
+            $tag = $this->tagRepo->getTag($value->tag_id);
+            return view('confirms.Thread.index', compact('thread', 'user', 'tag'));
+
+        } else {
+            $thread = $this->threadRepo->getThread($threadid);
+
+            $value = $this->threadRepo->showThread($threadid);
 
 
-        $user = $this->userRepo->showUser($value->user_id);
+            $user = $this->userRepo->showUser($value->user_id);
 
-        $tag = $this->tagRepo->getTag($value->tag_id);
+            $tag = $this->tagRepo->getTag($value->tag_id);
 
-        $notifications = $this->notiRepo->showUnread();
+            $notifications = $this->notiRepo->showUnread();
 
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+            $profile = $this->profileRepo->getProfile(Auth::user()->id);
 
-        $follower = $this->followRepo->showfollowerThread(Auth::user()->id,$value->id);
-        
-        return view('confirms.Thread.index', compact('thread', 'user', 'tag', 'notifications', 'profile','follower'));
+            $follower = $this->followRepo->showfollowerThread(Auth::user()->id, $value->id);
+
+            return view('confirms.Thread.index', compact('thread', 'user', 'tag', 'notifications', 'profile', 'follower'));
+        }
     }
 
 
@@ -271,7 +296,14 @@ class ThreadController extends Controller
         $thread = $this->threadRepo->getTrash($threadid);
         $thread->notify(new DeleteThreadNotification());
 
-        return redirect()->route('thread.show', $id);
+        if(Auth::user()->role == 'manager')
+        {
+            return redirect()->route('manager.thread.show', $id);
+        }
+        else
+        {
+            return redirect()->route('admin.thread.show', $id);
+        }
     }
 
     public function restore($id, $threadid)
@@ -280,7 +312,7 @@ class ThreadController extends Controller
         $this->threadRepo->restoreThreads($threadid);
         $thread = $this->threadRepo->showThread($threadid);
         $thread->notify(new RestoreThreadNotification());
-        return redirect()->route('thread.show', $id);
+        return redirect()->route('admin.thread.show', $id);
     }
 
 
@@ -290,7 +322,7 @@ class ThreadController extends Controller
         $notifications = $this->notiRepo->showUnread();
 
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('admin.export.threads.export_threads', compact('threads','notifications','profile'));
+        return view('admin.export.threads.export_threads', compact('threads', 'notifications', 'profile'));
     }
 
     public function export()
@@ -305,27 +337,27 @@ class ThreadController extends Controller
         Excel::import(new ThreadsImport, $file);
     }
 
-    public function follow($userid,$threadid)
+    public function follow($userid, $threadid)
     {
 
         $thread = $this->threadRepo->showThread($threadid);
         $user = $this->userRepo->showUser($userid);
-        
+
         $user->following()->attach($thread);
         $thread->notify(new GetFollowThreadNotfication());
-       
+
         return redirect()->back();
     }
 
-    public function unfollow($userid,$threadid)
+    public function unfollow($userid, $threadid)
     {
 
         $thread = $this->threadRepo->showThread($threadid);
         $user = $this->userRepo->showUser($userid);
-        
+
         $user->following()->detach($thread);
         $thread->notify(new GetunFollowThreadNotfication());
-       
+
         return redirect()->back();
     }
 }

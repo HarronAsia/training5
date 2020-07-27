@@ -48,6 +48,7 @@ class EditCommunityNotification extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . 's Thread had been modified to ' . ucfirst($community->title),
+            'user_id' => $user->id,
         ];
     }
 

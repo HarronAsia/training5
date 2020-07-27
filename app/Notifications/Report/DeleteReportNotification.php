@@ -49,6 +49,7 @@ class DeleteReportNotification extends Notification
         
         return [
                 'data' => 'Report id ' .$report->id. ' has been deleted by '. $user->name ,
+                'user_id' => $user->id,
             ];
     }
 

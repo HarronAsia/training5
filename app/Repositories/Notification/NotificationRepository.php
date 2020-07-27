@@ -24,6 +24,7 @@ class NotificationRepository extends BaseRepository implements NotificationRepos
     public function showUnread()
     {
        return $this->model = DB::table('notifications')->get()->where('read_at', '==', NULL);
+    //    return $this->model = Notification::join('users','user_id','users.id')->where('read_at',NULL)->where('role','"admin"')->get();
     }
 
 

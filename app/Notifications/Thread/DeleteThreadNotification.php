@@ -49,6 +49,7 @@ class DeleteThreadNotification extends Notification
         
         return [
                 'data' => 'Thread id ' .$thread->id. ' has been deleted by '. $user->name ,
+                'user_id' => $user->id,
             ];
     }
 

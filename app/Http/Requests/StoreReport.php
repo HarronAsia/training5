@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreReport extends FormRequest
 {
@@ -22,8 +23,12 @@ class StoreReport extends FormRequest
      * @return array
      */
     public function rules()
-    {        
+    {
+       
+
         return [
+            'name' => 'required',
+            'email' => 'required',
             'reason' => 'required',
             'detail' => 'required|min:10|max:200',
         ];

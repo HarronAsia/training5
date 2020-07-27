@@ -49,6 +49,7 @@ class EditForumNotification extends Notification
         
         return [
                 'data' => 'User names ' .ucfirst($user->name). 's Forum had been modified to '. ucfirst($forum->title) ,
+                'user_id' => $user->id,
             ];
     }
 

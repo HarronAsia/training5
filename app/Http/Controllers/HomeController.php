@@ -14,6 +14,7 @@ use App\Repositories\Notification\NotificationRepositoryInterface;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use phpDocumentor\Reflection\Types\True_;
 
 class HomeController extends Controller
 {
@@ -24,8 +25,7 @@ class HomeController extends Controller
 
     public function __construct(CategoryRepositoryInterface $cateRepo, ThreadRepositoryInterface $threadRepo, ProfileRepositoryInterface $profileRepo,NotificationRepositoryInterface $notiRepo)
     {
-        $this->middleware(['auth', 'verified']);
-        
+       
         $this->cateRepo = $cateRepo;
         $this->threadRepo = $threadRepo;
         $this->profileRepo = $profileRepo;
@@ -47,17 +47,24 @@ class HomeController extends Controller
 
     public function index()
     {
-        $categories = $this->cateRepo->showall();
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        $notifications = $this->notiRepo->showUnread();
-        return view('home', compact('categories', 'notifications','profile'));
+        if(Auth::guest() == True)
+        {
+            $categories = $this->cateRepo->showall();
+            return view('home', compact('categories'));
+        }
+        else
+        {
+            $categories = $this->cateRepo->showall();
+            $profile = $this->profileRepo->getProfile(Auth::user()->id);
+            $notifications = $this->notiRepo->showUnread();
+            return view('home', compact('categories', 'notifications','profile'));
+        }
+      
     }
 
     public function readAt($id)
     {
         $notification = DB::table('notifications')->where('id', $id)->update(['read_at' => Carbon::now()]);
-
-
 
         return redirect()->back();
     }

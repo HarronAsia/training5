@@ -49,6 +49,7 @@ class AddReportNotification extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . ' has report a new Thread with type ' . ucfirst($report->reason),
+            'user_id' => $user->id,
         ];
     }
 

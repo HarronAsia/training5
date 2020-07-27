@@ -9,6 +9,9 @@
 
         </h5>
         <div class="text-right">
+            @if(Auth::guest())
+
+            @else
             @if(Auth::user()->role == 'manager')
             <a href="{{ route('manager.thread.add', ['id'=> $forum->id])}}">
                 <button type="button" class="btn btn-primary">Add Thread</button>
@@ -20,6 +23,7 @@
             <a href="{{ route('admin.thread.add', ['id'=> $forum->id])}}">
                 <button type="button" class="btn btn-primary">Add Thread</button>
             </a>
+            @endif
             @endif
         </div>
         <div class="card-body">
@@ -38,13 +42,32 @@
                     </thead>
                     <tbody>
                         @foreach ($threads as $thread)
+                        @if(Auth::guest())
+                        <tr>
+                            <td>{{$thread->id}}</td>
+                            <td>
+                                <a href="{{ route('thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
+                                    <img src="{{asset('storage/thread/'.$thread->title.'/'.$thread->thumbnail.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                                </a>
+                            </td>
 
+                            <td>
+                                <div>
+                                    {{$thread->title}}
+                                </div>
+                            </td>
+                            <td>{{$thread->detail}}</td>
+                            <td>{{$thread->created_at}}</td>
+                            <td>{{$thread->updated_at}}</td>
+                            <td></td>
+                        </tr>
+                        @else
                         @if ($thread->status == "private")
                         @if( Auth::user()->role == "admin")
                         <tr>
                             <td>{{$thread->id}}</td>
                             <td>
-                                <a href="{{ route('thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
+                                <a href="{{ route('admin.thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
                                     <img src="{{asset('storage/thread/'.$thread->title.'/'.$thread->thumbnail.'/')}}" alt="Image" style="width:200px ;height:200px;">
                                 </a>
                             </td>
@@ -92,60 +115,60 @@
                         <tr>
 
                             @if( Auth::user()->role == "manager")
-                                @if($thread->deleted_at != NULL)
+                            @if($thread->deleted_at != NULL)
 
-                                @else
-                                <td>{{$thread->id}}</td>
-                                <td>
-                                    <a href="{{ route('thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
-                                        <img src="{{asset('storage/thread/'.$thread->title.'/'.$thread->thumbnail.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                            @else
+                            <td>{{$thread->id}}</td>
+                            <td>
+                                <a href="{{ route('manager.thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
+                                    <img src="{{asset('storage/thread/'.$thread->title.'/'.$thread->thumbnail.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                                </a>
+                            </td>
+
+                            <td>
+                                <div>
+                                    {{$thread->title}}
+                                </div>
+                            </td>
+                            <td>{{$thread->detail}}</td>
+                            <td>{{$thread->created_at}}</td>
+                            <td>{{$thread->updated_at}}</td>
+                            <td>
+
+                                @can('updatethread', $thread)
+                                <div class="pull-left">
+                                    <a href="{{ route('manager.thread.edit', ['id' => $forum->id ,'threadid' =>$thread->id])}}">
+                                        <button type="button" class="btn btn-info btn-lg">
+                                            <i class="fa fa-edit"></i>
+                                        </button>
                                     </a>
-                                </td>
+                                </div>
+                                @endcan
 
-                                <td>
-                                    <div>
-                                        {{$thread->title}}
-                                    </div>
-                                </td>
-                                <td>{{$thread->detail}}</td>
-                                <td>{{$thread->created_at}}</td>
-                                <td>{{$thread->updated_at}}</td>
-                                <td>
+                                @cannot('updatethread', $thread)
 
-                                    @can('updatethread', $thread)
-                                    <div class="pull-left">
-                                        <a href="{{ route('manager.thread.edit', ['id' => $forum->id ,'threadid' =>$thread->id])}}">
-                                            <button type="button" class="btn btn-info btn-lg">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                        </a>
-                                    </div>
-                                    @endcan
+                                @endcannot
 
-                                    @cannot('updatethread', $thread)
+                                @can('deletethread', $thread)
+                                <div class="pull-right">
+                                    <a href="{{ route('manager.thread.delete', ['id' => $forum->id ,'threadid' =>$thread->id])}}">
+                                        <button type="button" class="btn btn-danger btn-lg">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                @endcan
 
-                                    @endcannot
+                                @cannot('deletethread', $thread)
 
-                                    @can('deletethread', $thread)
-                                    <div class="pull-right">
-                                        <a href="{{ route('manager.thread.delete', ['id' => $forum->id ,'threadid' =>$thread->id])}}">
-                                            <button type="button" class="btn btn-danger btn-lg">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </a>
-                                    </div>
-                                    @endcan
-
-                                    @cannot('deletethread', $thread)
-
-                                    @endcannot
-                                </td>
-                                @endif
+                                @endcannot
+                            </td>
+                            @endif
                             @else
 
                             <td>{{$thread->id}}</td>
                             <td>
-                                <a href="{{ route('thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
+                                <a href="{{ route('admin.thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
                                     @if($thread->thumbnail == NULL)
                                     <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:200px ;height:200px;">
                                     @else
@@ -194,6 +217,8 @@
                         </tr>
 
                         @endif
+                        @endif
+
                         @endforeach
                     </tbody>
                 </table>

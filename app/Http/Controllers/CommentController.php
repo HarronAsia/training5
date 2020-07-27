@@ -75,7 +75,7 @@ class CommentController extends Controller
 
             $extension = $data['comment_image']->getClientOriginalExtension();
             $filename =  Auth::user()->name . '.' . $extension;
-            $path = storage_path('app/public/comment/thread/' . $data['comment_detail'] . '/');
+            $path = storage_path('app/public/comment/post/' . $data['comment_detail'] . '/');
 
             $data['comment_image']->move($path, $filename);
             $data['comment_image'] = $filename;

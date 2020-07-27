@@ -15,7 +15,7 @@
 
                     <div class="modal-body">
 
-                        <form action="{{ route('admin.category.create')}}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.category.create.confirm', ['name' => Auth::user()->name])}}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="form-group">
                                 <input type="text" name="name" class="form-control form-control-lg" placeholder="Enter Name" required>

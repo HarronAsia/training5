@@ -61,14 +61,14 @@
                             </a>
 
                             <ul class="dropdown-menu">
-                             
-                                @foreach($notifications  as $notification)
+
+                                @foreach($notifications as $notification)
 
                                 <li class="user-footer">
                                     <p>{{$notification->notifiable_type}}</p>
-                                    <p>{{$notification->data}}</p>
+                                    <p>{{json_decode($notification->data)->data}}</p>
                                     <a href="{{ route('notification.read', ['id'=> $notification->id])}}">
-                                        <p >&times;</p>
+                                        <p>&times;</p>
                                     </a>
                                 </li>
                                 <br>
@@ -77,7 +77,7 @@
                         </li>
                     </ul>
                 </div>
-                
+
                 <!-- Navbar Right Menu -->
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
@@ -88,7 +88,7 @@
                             <!-- Menu Toggle Button -->
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <!-- The user image in the navbar-->
-                                
+
                                 @if (Auth::user()->photo == NULL)
                                 <img src="{{asset('storage/default.png')}}" alt="Image" class="user-image">
                                 @else
@@ -118,13 +118,13 @@
 
                                 </li>
                                 @foreach($profile as $value)
-                                <li class="user-footer">               
+                                <li class="user-footer">
                                     @if(Auth::user()->id == $value->id)
                                     <a href="{{ route('account.profile', ['id'=> Auth::user()->id])}}" class="btn btn-default btn-flat">Personal Information</a>
                                     @else
 
                                     @endif
-                      
+
                                 </li>
                                 @endforeach
                                 <li class="user-footer">
@@ -163,46 +163,45 @@
 
     </div>
     @else
-    <nav class="navbar navbar-default navbar-static-top">
-        <div class="container">
-            <div class="navbar-header">
+    <div class="wrapper">
+        <!-- Main Header -->
+        <header class="main-header">
 
-                <!-- Collapsed Hamburger -->
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#app-navbar-collapse">
-                    <span class="sr-only">Toggle Navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
+            <!-- Logo -->
+            <a href="/" class="logo">
+                <b>Harron</b>
+            </a>
+            <nav class="navbar navbar-static-top" role="navigation">
+                
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
 
-            </div>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li><a href="{{ url('/') }}">Home</a></li>
 
-            <div class="collapse navbar-collapse" id="app-navbar-collapse">
-                <!-- Left Side Of Navbar -->
-                <ul class="nav navbar-nav">
-                    <li><a href="{{ url('/') }}">Home</a></li>
-                </ul>
+                        <!-- Right Side Of Navbar -->
 
-                <!-- Right Side Of Navbar -->
-                <ul class="nav navbar-nav navbar-right">
-                    <!-- Authentication Links -->
-                    <li><a href="{{ url('/login') }}">Login</a></li>
-                    <li><a href="{{ url('/register') }}">Register</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div id="page-content-wrapper">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    @yield('content')
+                        <!-- Authentication Links -->
+                        <li><a href="{{ url('/login') }}">Login</a></li>
+                        <li><a href="{{ url('/register') }}">Register</a></li>
+                    </ul>
                 </div>
-            </div>
+
+            </nav>
+
+        </header>
+
+        <!-- Left side column. contains the logo and sidebar -->
+        @include('layouts.sidebar')
+
+        <div class="content-wrapper">
+            @yield('content')
         </div>
     </div>
-    
+
+
     @endif
 
     <!-- jQuery 3.1.1 -->

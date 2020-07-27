@@ -20,9 +20,12 @@ class ReportController extends Controller
     protected $notiRepo;
     protected $repoRepo;
 
-    public function __construct(ThreadRepositoryInterface $threadRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo,
-                                ReportRepositoryInterface $repoRepo)
-    {
+    public function __construct(
+        ThreadRepositoryInterface $threadRepo,
+        ProfileRepositoryInterface $profileRepo,
+        NotificationRepositoryInterface $notiRepo,
+        ReportRepositoryInterface $repoRepo
+    ) {
         $this->threadRepo = $threadRepo;
         $this->profileRepo = $profileRepo;
         $this->notiRepo = $notiRepo;
@@ -35,7 +38,6 @@ class ReportController extends Controller
      */
     public function index()
     {
-       
     }
 
     /**
@@ -45,10 +47,15 @@ class ReportController extends Controller
      */
     public function create($id)
     {
-        $thread = $this->threadRepo->showThread($id);
-        $notifications = $this->notiRepo->showUnread();
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Report.add_Report', compact('notifications', 'thread','profile'));
+        if (Auth::guest()) {
+            $thread = $this->threadRepo->showThread($id);
+            return view('confirms.Report.add_Report', compact('thread'));
+        } else {
+            $thread = $this->threadRepo->showThread($id);
+            $notifications = $this->notiRepo->showUnread();
+            $profile = $this->profileRepo->getProfile(Auth::user()->id);
+            return view('confirms.Report.add_Report', compact('notifications', 'thread', 'profile'));
+        }
     }
 
     /**
@@ -61,16 +68,26 @@ class ReportController extends Controller
     {
 
         $data = $request->validated();
-        
+        // dd( $data);
         $thread = $this->threadRepo->showThread($id);
-        
+        if(Auth::guest())
+        {
+            $data['user_id'] = NULL;
+        }
+        else
+        {
+            $data['user_id'] = Auth::user()->id;
+        }
+        //dd($data);
         $thread->reports()->create([
+            'name' => $data['name'],
+            'email' => $data['email'],
             'reason' => $data['reason'],
             'detail' =>  $data['detail'],
-            'user_id' => Auth::user()->id
+            'user_id' => $data['user_id']
+
         ]);
-            
-        return redirect()->route('thread.detail',[$thread->forum_id,$thread->id]);
+        return redirect()->route('thread.detail', [$thread->forum_id, $thread->id]);
     }
 
     /**
@@ -116,15 +133,15 @@ class ReportController extends Controller
     public function destroy($id)
     {
         $this->repoRepo->deleteReport($id);
-        
-        
+
+
         return redirect()->back();
     }
 
     public function restore($id)
     {
         $this->repoRepo->restoreReport($id);
-        
+
         return redirect()->back();
     }
 }

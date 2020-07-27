@@ -11,7 +11,7 @@ class Report extends Model
     use Notifiable,SoftDeletes;
 
     protected $fillable = [
-        'reason','detail','user_id'
+        'name','email','reason','detail','user_id'
     ];
 
     public function reportable()

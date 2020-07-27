@@ -49,6 +49,7 @@ class DeleteForumNotification extends Notification
         
         return [
                 'data' => 'Forum id ' .$forum->id. ' has been deleted by '. $user->name ,
+                'user_id' => $user->id,
             ];
     }
 

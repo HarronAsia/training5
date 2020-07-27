@@ -49,6 +49,7 @@ class GetunFollowThreadNotfication extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . ' has Unfollowed ' . ucfirst($thread->title),
+            'user_id' => $user->id,
         ];
     }
 

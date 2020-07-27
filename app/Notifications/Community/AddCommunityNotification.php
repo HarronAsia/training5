@@ -49,6 +49,7 @@ class AddCommunityNotification extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . ' has added a new Community called ' . ucfirst($community->title),
+            'user_id' => $user->id,
         ];
     }
 

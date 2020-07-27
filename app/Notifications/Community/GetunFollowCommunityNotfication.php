@@ -49,6 +49,7 @@ class GetunFollowCommunityNotfication extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . ' has unfollowed ' . ucfirst($community->title),
+            'user_id' => $user->id,
         ];
     }
 

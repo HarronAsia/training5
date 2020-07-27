@@ -3,6 +3,8 @@
 namespace App\Notifications\Tag;
 
 use App\Models\Tag;
+use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -45,6 +47,7 @@ class EditTagNotification extends Notification
         return
         [
             'data' => 'Tag id '.$tag->id. ' has been modfied to' . $tag->name,
+            'user_id' => Auth::user()->id,
         ];
     }
 

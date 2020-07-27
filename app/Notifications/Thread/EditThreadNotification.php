@@ -50,6 +50,7 @@ class EditThreadNotification extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . 's Thread had been modified to ' . ucfirst($thread->title),
+            'user_id' => $user->id,
         ];
     }
 

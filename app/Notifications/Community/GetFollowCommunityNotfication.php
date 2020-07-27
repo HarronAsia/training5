@@ -49,6 +49,7 @@ class GetFollowCommunityNotfication extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . ' has followed ' . ucfirst($community->title),
+            'user_id' => $user->id,
         ];
     }
 

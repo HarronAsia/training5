@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class AddTagNotification extends Notification
 {
@@ -45,6 +46,7 @@ class AddTagNotification extends Notification
         return
         [
             'data' => 'new Tag called '.$tag->name. ' has been created',
+            'user_id' => Auth::user()->id,
         ];
     }
 

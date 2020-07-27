@@ -49,6 +49,7 @@ class GetFollowThreadNotfication extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . ' has followed ' . ucfirst($thread->title),
+            'user_id' => $user->id,
         ];
     }
 

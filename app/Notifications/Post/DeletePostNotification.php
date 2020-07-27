@@ -49,6 +49,7 @@ class DeletePostNotification extends Notification
         
         return [
                 'data' => 'Post id ' .$post->id. ' has been deleted by '. $user->name ,
+                'user_id' => $user->id,
             ];
     }
 

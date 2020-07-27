@@ -55,6 +55,7 @@ class AddPostNotification extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . ' has added a new Post on ' . ucfirst($community->title),
+            'user_id' => $user->id,
         ];
     }
 

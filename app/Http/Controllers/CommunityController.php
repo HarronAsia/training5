@@ -35,10 +35,16 @@ class CommunityController extends Controller
     protected $notiRepo;
     protected $followRepo;
 
-    public function __construct(CommunityRepositoryInterface $commuRepo, PostRepositoryInterface $postRepo, UserRepositoryInterface $userRepo, 
-    CommentRepositoryInterface $commRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo,FollowerRepositoryInterface $followRepo)
-    {
-        $this->middleware('auth');
+    public function __construct(
+        CommunityRepositoryInterface $commuRepo,
+        PostRepositoryInterface $postRepo,
+        UserRepositoryInterface $userRepo,
+        CommentRepositoryInterface $commRepo,
+        ProfileRepositoryInterface $profileRepo,
+        NotificationRepositoryInterface $notiRepo,
+        FollowerRepositoryInterface $followRepo
+    ) {
+
         $this->commuRepo = $commuRepo;
         $this->postRepo = $postRepo;
         $this->userRepo = $userRepo;
@@ -55,11 +61,15 @@ class CommunityController extends Controller
      */
     public function index()
     {
-
-        $communities = $this->commuRepo->showall();
-        $notifications = $this->notiRepo->showUnread();
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Community.homepage', compact('communities', 'notifications', 'profile'));
+        if (Auth::guest()) {
+            $communities = $this->commuRepo->showall();
+            return view('confirms.Community.homepage', compact('communities'));
+        } else {
+            $communities = $this->commuRepo->showall();
+            $notifications = $this->notiRepo->showUnread();
+            $profile = $this->profileRepo->getProfile(Auth::user()->id);
+            return view('confirms.Community.homepage', compact('communities', 'notifications', 'profile'));
+        }
     }
 
     /**
@@ -71,7 +81,7 @@ class CommunityController extends Controller
     {
         $notifications = DB::table('notifications')->get()->where('read_at', '==', NULL);
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Community.add_community', compact('notifications','profile'));
+        return view('confirms.Community.add_community', compact('notifications', 'profile'));
     }
 
     /**
@@ -114,17 +124,21 @@ class CommunityController extends Controller
      */
     public function show($id)
     {
+        if (Auth::guest()) {
+            $community = $this->commuRepo->showcommunity($id);
+            $posts = $this->postRepo->showall($community->id);
+            return view('confirms.Community.index', compact('community', 'posts'));
+        } else {
+            $community = $this->commuRepo->showcommunity($id);
+            $posts = $this->postRepo->showall($community->id);
 
+            $notifications  = $this->notiRepo->showUnread();
+            $profile = $this->profileRepo->getProfile(Auth::user()->id);
 
-        $community = $this->commuRepo->showcommunity($id);
-        $posts = $this->postRepo->showall($community->id);
+            $follower = $this->followRepo->showfollowerThread(Auth::user()->id, $community->id);
 
-        $notifications  = $this->notiRepo->showUnread();
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
-
-        $follower = $this->followRepo->showfollowerThread(Auth::user()->id,$community->id);
-
-        return view('confirms.Community.index', compact('community', 'posts', 'notifications','profile','follower'));
+            return view('confirms.Community.index', compact('community', 'posts', 'notifications', 'profile', 'follower'));
+        }
     }
 
     /**
@@ -138,7 +152,7 @@ class CommunityController extends Controller
         $community = $this->commuRepo->showcommunity($id);
         $notifications = $this->notiRepo->showUnread();
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Community.edit_community', compact('community', 'notifications','profile'));
+        return view('confirms.Community.edit_community', compact('community', 'notifications', 'profile'));
     }
 
     /**
@@ -211,27 +225,27 @@ class CommunityController extends Controller
         return redirect()->back();
     }
 
-    public function follow($userid,$communityid)
+    public function follow($userid, $communityid)
     {
 
         $community = $this->commuRepo->showcommunity($communityid);
         $user = $this->userRepo->showUser($userid);
-        
+
         $user->following()->attach($community);
         $community->notify(new GetFollowCommunityNotfication());
-       
+
         return redirect()->back();
     }
 
-    public function unfollow($userid,$communityid)
+    public function unfollow($userid, $communityid)
     {
 
         $community = $this->commuRepo->showcommunity($communityid);
         $user = $this->userRepo->showUser($userid);
-        
+
         $user->following()->detach($community);
         $community->notify(new GetunFollowCommunityNotfication());
-       
+
         return redirect()->back();
     }
 }

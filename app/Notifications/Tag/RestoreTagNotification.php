@@ -49,6 +49,7 @@ class RestoreTagNotification extends Notification
         
         return [
                 'data' => 'Tag id ' .$tag->id. ' has been restored by '. $user->name ,
+                'user_id' => Auth::user()->id,
             ];
     }
 

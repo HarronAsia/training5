@@ -49,6 +49,7 @@ class AddForumNotification extends Notification
         
         return [
                 'data' => 'User names ' .ucfirst($user->name). ' has added a new Forum called '. ucfirst($forum->title) ,
+                'user_id' => $user->id,
             ];
     }
 

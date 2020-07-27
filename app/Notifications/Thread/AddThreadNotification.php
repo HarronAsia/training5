@@ -48,6 +48,7 @@ class AddThreadNotification extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . ' has added a new Forum called ' . ucfirst($thread->title),
+            'user_id' => $user->id,
         ];
     }
 

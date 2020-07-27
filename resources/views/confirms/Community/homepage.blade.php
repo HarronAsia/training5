@@ -9,12 +9,16 @@
 
         </h5>
         <div class="text-right">
-            @if(Auth::user()->role == 'admin')
-            <a href="{{ route('admin.community.add')}}">
-                <button type="button" class="btn btn-primary">Add Community</button>
-            </a>
-            @else
+            @if(Auth::guest())
 
+            @else
+                @if(Auth::user()->role == 'admin')
+                <a href="{{ route('admin.community.add')}}">
+                    <button type="button" class="btn btn-primary">Add Community</button>
+                </a>
+                @else
+
+                @endif
             @endif
         </div>
         <div class="card-body">
@@ -32,8 +36,7 @@
                     </thead>
                     <tbody>
                         @foreach ($communities as $community)
-
-                        @if( Auth::user()->role == "admin")
+                        @if(Auth::guest())
                         <tr>
                             <td>{{$community->id}}</td>
                             <td>
@@ -53,60 +56,81 @@
                             </td>
                             <td>{{$community->created_at}}</td>
                             <td>{{$community->updated_at}}</td>
-                            <td>
-                                @if($community->deleted_at != NULL)
-                                <div class="pull-left">
-                                    <a href="{{route('admin.community.restore',['id' => $community->id])}}">
-                                        <button type="button" class="btn btn-success btn-lg">
-                                            <i class="fa fa-undo"></i>
-                                        </button>
-                                    </a>
-                                </div>
-                                @else
-                                <div class="pull-left">
-                                    <a href="{{route('admin.community.edit',['id' => $community->id])}}">
-                                        <button type="button" class="btn btn-info btn-lg">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                    </a>
-                                </div>
-
-                                <div class="pull-right">
-                                    <a href="{{route('admin.community.delete',['id' => $community->id])}}">
-                                        <button type="button" class="btn btn-danger btn-lg">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </a>
-                                </div>
-                                @endif
-
-                            </td>
-                        </tr>
+                            <td></td>
                         @else
-                        <tr>
-                            <td>{{$community->id}}</td>
-                            <td>
-                                <a href="{{ route('manager.community.show',['id' => $community->id])}}">
-                                    @if($community->banner != NULL)
-                                    <img src="{{asset('storage/community/'.$community->title.'/'.$community->banner.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                            @if( Auth::user()->role == "admin")
+                            <tr>
+                                <td>{{$community->id}}</td>
+                                <td>
+                                    <a href="{{ route('admin.community.show',['id' => $community->id])}}">
+                                        @if($community->banner != NULL)
+                                        <img src="{{asset('storage/community/'.$community->title.'/'.$community->banner.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                                        @else
+                                        <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:200px ;height:200px;">
+                                        @endif
+                                    </a>
+                                </td>
+
+                                <td>
+                                    <div>
+                                        {{$community->title}}
+                                    </div>
+                                </td>
+                                <td>{{$community->created_at}}</td>
+                                <td>{{$community->updated_at}}</td>
+                                <td>
+                                    @if($community->deleted_at != NULL)
+                                    <div class="pull-left">
+                                        <a href="{{route('admin.community.restore',['id' => $community->id])}}">
+                                            <button type="button" class="btn btn-success btn-lg">
+                                                <i class="fa fa-undo"></i>
+                                            </button>
+                                        </a>
+                                    </div>
                                     @else
-                                    <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:200px ;height:200px;">
+                                    <div class="pull-left">
+                                        <a href="{{route('admin.community.edit',['id' => $community->id])}}">
+                                            <button type="button" class="btn btn-info btn-lg">
+                                                <i class="fa fa-edit"></i>
+                                            </button>
+                                        </a>
+                                    </div>
+
+                                    <div class="pull-right">
+                                        <a href="{{route('admin.community.delete',['id' => $community->id])}}">
+                                            <button type="button" class="btn btn-danger btn-lg">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </a>
+                                    </div>
                                     @endif
-                                </a>
-                            </td>
 
-                            <td>
-                                <div>
-                                    {{$community->title}}
-                                </div>
-                            </td>
-                            <td>{{$community->created_at}}</td>
-                            <td>{{$community->updated_at}}</td>
-                            <td>For Admin Only</td>
-                        </tr>
+                                </td>
+                            </tr>
+                            @else
+                            <tr>
+                                <td>{{$community->id}}</td>
+                                <td>
+                                    <a href="{{ route('manager.community.show',['id' => $community->id])}}">
+                                        @if($community->banner != NULL)
+                                        <img src="{{asset('storage/community/'.$community->title.'/'.$community->banner.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                                        @else
+                                        <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:200px ;height:200px;">
+                                        @endif
+                                    </a>
+                                </td>
+
+                                <td>
+                                    <div>
+                                        {{$community->title}}
+                                    </div>
+                                </td>
+                                <td>{{$community->created_at}}</td>
+                                <td>{{$community->updated_at}}</td>
+                                <td>For Admin Only</td>
+                            </tr>
+                            @endif
                         @endif
-
-
                         @endforeach
                     </tbody>
                 </table>

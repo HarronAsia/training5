@@ -17,6 +17,26 @@
 
                         <form action="{{ route('thread.report.store',['threadid'=>$thread->id])}}" method="POST" enctype="multipart/form-data">
                             @csrf
+                            @if(Auth::guest())
+                            
+                            <div class="form-group">
+                                <div>
+                                    <label for="name">Tên: </label>
+                                    <input type="text" name="name" required>
+                                </div>
+
+                                <div>
+                                    <label for="email">Email: </label>
+                                    <input type="email" name="email" required>
+                                </div>
+                                
+                            </div>
+                            @else
+                            <input type="hidden" name="name" value="{{Auth::user()->name}}">
+                            <input type="hidden" name="email" value="{{Auth::user()->email}}">
+                            
+                            @endif
+                            
                             <div class="form-group">
                                 <ul>
                                     <label for="reason">Lý do: </label>

@@ -52,6 +52,7 @@ class EditPostNotification extends Notification
 
         return [
             'data' => 'User names ' . ucfirst($user->name) . 's Forum had been modified in ' . ucfirst($community->title),
+            'user_id' => $user->id,
         ];
     }
 

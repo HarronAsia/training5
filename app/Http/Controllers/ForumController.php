@@ -30,7 +30,6 @@ class ForumController extends Controller
 
     public function __construct(ThreadRepositoryInterface $threadRepo, CategoryRepositoryInterface $cateRepo, ForumRepositoryInterface $forumRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
-        $this->middleware('auth');
         $this->forumRepo = $forumRepo;
         $this->cateRepo = $cateRepo;
         $this->threadRepo = $threadRepo;
@@ -54,7 +53,7 @@ class ForumController extends Controller
      */
     public function create($id)
     {
-
+        
         $category = $this->cateRepo->showcategory($id);
         $notifications = $this->notiRepo->showUnread();
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
@@ -69,18 +68,24 @@ class ForumController extends Controller
      */
     public function store(StoreForum $request, $id)
     {
-
+        
         $data = $request->validated();
 
-        $category = $this->cateRepo->showcategory($id);
-
         $forum = new Forum;
-
+        $forum->user_id = Auth::user()->id;
         $forum->title = $data['title'];
-        $forum->category_id = $category->id;
+        $forum->category_id = $id;
         $forum->save();
         $forum->notify(new AddForumNotification());
-        return redirect()->route('category.index', $category->id);
+        if(Auth::user()->role == 'manager')
+        {
+            return redirect()->route('manager.category.index', $id);
+        }
+        else
+        {
+            return redirect()->route('admin.category.index', $id);
+        }
+        
     }
 
     /**
@@ -92,12 +97,17 @@ class ForumController extends Controller
     public function show($id, $threadid)
     {
 
-
-        $forum = $this->forumRepo->showforum($id);
-        $threads = $this->threadRepo->getallThreads($threadid);
-        $notifications = $this->notiRepo->showUnread();
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Forum.Thread.homepage', compact('threads', 'forum', 'notifications','profile'));
+        if (Auth::guest()) {
+            $forum = $this->forumRepo->showforum($id);
+            $threads = $this->threadRepo->getallThreads($forum->id);
+            return view('confirms.Thread.homepage', compact('threads', 'forum'));
+        } else {
+            $forum = $this->forumRepo->showforum($id);
+            $threads = $this->threadRepo->getallThreads($forum->id);
+            $notifications = $this->notiRepo->showUnread();
+            $profile = $this->profileRepo->getProfile(Auth::user()->id);
+            return view('confirms.Thread.homepage', compact('threads', 'forum', 'notifications', 'profile'));
+        }
     }
 
     /**
@@ -106,12 +116,13 @@ class ForumController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id,$forumid)
     {
-        $forum = $this->forumRepo->showforum($id);
+
+        $forum = $this->forumRepo->showforum($forumid);
         $notifications = $this->notiRepo->showUnread();
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Category.Forum.edit', compact('forum', 'notifications','profile'));
+        return view('confirms.Forum.edit', compact('forum', 'notifications', 'profile'));
     }
 
     /**
@@ -121,19 +132,25 @@ class ForumController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(StoreForum $request, $id)
+    public function update(StoreForum $request, $id,$forumid)
     {
         $data = $request->validated();
 
-        $forum = $this->forumRepo->showforum($id);
+        $forum = $this->forumRepo->showforum($forumid);
 
         $forum->title = $data['title'];
-
+        $forum->user_id = Auth::user()->id;
         $forum->update();
         $forum->notify(new EditForumNotification());
-        $category = $this->cateRepo->showcategory($forum->category_id);
-
-        return redirect()->route('category.index', $category->id);
+       
+        if(Auth::user()->role == 'manager')
+        {
+            return redirect()->route('manager.category.index', $id);
+        }
+        else
+        {
+            return redirect()->route('admin.category.index', $id);
+        }
     }
 
     /**
@@ -142,25 +159,25 @@ class ForumController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id,$forumid)
     {
 
-        $this->forumRepo->deleteForums($id);
-        $forum = $this->forumRepo->getTrash($id);
+        $this->forumRepo->deleteForums($forumid);
+        $forum = $this->forumRepo->getTrash($forumid);
         $forum->notify(new DeleteForumNotification());
-        
+
 
         return redirect()->back();
     }
 
-    public function restore($id)
+    public function restore($id,$forumid)
     {
 
-        $this->forumRepo->restoreForums($id);
+        $this->forumRepo->restoreForums($forumid);
 
-        $forum = $this->forumRepo->showforum($id);
+        $forum = $this->forumRepo->showforum($forumid);
         $forum->notify(new RestoreForumNotification());
-        
+
 
         return redirect()->back();
     }

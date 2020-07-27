@@ -49,6 +49,7 @@ class DeleteTagNotification extends Notification
         
         return [
                 'data' => 'Tag id ' .$tag->id. ' has been deleted by '. $user->name ,
+                'user_id' => Auth::user()->id,
             ];
     }
 

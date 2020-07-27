@@ -15,7 +15,7 @@
 
                     <div class="modal-body">
 
-                        <form action="{{ route('admin.category.update', ['id'=> $category->id])}}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('admin.category.edit.confirm', ['id'=> $category->id])}}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="form-group">
                                 <input type="text" name="name" class="form-control form-control-lg" placeholder="Enter Name" value="{{$category->name}}"required>

@@ -49,6 +49,7 @@ class DeleteCommunityNotification extends Notification
         
         return [
                 'data' => 'Community id ' .$community->id. ' has been deleted by '. $user->name ,
+                'user_id' => $user->id,
             ];
     }
 

@@ -45,15 +45,14 @@ class AddCategoryNotification extends Notification
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toDatabase($notifiable)
-    {
-        
-        
+    { 
         
         $category = Category::findOrFail($notifiable->id);
         $user = User::findOrFail(Auth::user()->id);
         
         return [
                 'data' => 'User names ' .ucfirst($user->name). ' has added a new Category called '. ucfirst($category->name) ,
+                'user_id' => $user->id,
             ];
     }
 

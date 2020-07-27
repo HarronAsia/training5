@@ -49,6 +49,7 @@ class RestoreCategoryNotification extends Notification
         
         return [
                 'data' => 'Category id ' .$category->id. ' has been restored by '. $user->name,
+                'user_id' => $user->id,
             ];
     }
 

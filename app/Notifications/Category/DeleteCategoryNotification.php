@@ -50,6 +50,7 @@ class DeleteCategoryNotification extends Notification
         
         return [
                 'data' => 'Category id ' .$category->id. ' has been deleted by '. $user->name,
+                'user_id' => $user->id,
             ];
     }
 

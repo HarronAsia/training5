@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+
 use App\Http\Requests\StoreCategory;
 
 use App\Notifications\Category\AddCategoryNotification;
@@ -27,7 +28,7 @@ class CategoryController extends Controller
 
     public function __construct(CategoryRepositoryInterface $cateRepo, ForumRepositoryInterface $forumRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
-        $this->middleware('auth');
+
         $this->cateRepo = $cateRepo;
         $this->forumRepo = $forumRepo;
         $this->profileRepo = $profileRepo;
@@ -55,13 +56,7 @@ class CategoryController extends Controller
         return view('confirms.Category.add_category', compact('notifications', 'profile'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreCategory $request)
+    public function confirmcreate(StoreCategory $request)
     {
         $data = $request->validated();
 
@@ -69,12 +64,30 @@ class CategoryController extends Controller
 
         $category->name = $data['name'];
         $category->detail = $data['detail'];
-
-        $category->save();
-
-
-        $category->notify(new AddCategoryNotification);
         
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+
+        return view('confirms.Category.confirm_add_category', compact('category','notifications', 'profile'));
+   
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $data = $request;
+        $category = new Category;
+
+        $category->name = $data['name'];
+        $category->detail = $data['detail'];
+        
+        $category->save();
+        $category->notify(new AddCategoryNotification);
         return redirect()->route('home');
     }
 
@@ -86,11 +99,17 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $category = $this->cateRepo->showcategory($id);
-        $forums = $this->forumRepo->showall($category->id);
-        $notifications = $this->notiRepo->showUnread();
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Category.Forum.homepage', compact('category', 'forums', 'notifications','profile'));
+        if (Auth::guest()) {
+            $category = $this->cateRepo->showcategory($id);
+            $forums = $this->forumRepo->showall($category->id);
+            return view('confirms.Forum.homepage', compact('category', 'forums'));
+        } else {
+            $category = $this->cateRepo->showcategory($id);
+            $forums = $this->forumRepo->showall($category->id);
+            $notifications = $this->notiRepo->showUnread();
+            $profile = $this->profileRepo->getProfile(Auth::user()->id);
+            return view('confirms.Forum.homepage', compact('category', 'forums', 'notifications', 'profile'));
+        }
     }
 
     /**
@@ -104,7 +123,20 @@ class CategoryController extends Controller
         $category = $this->cateRepo->showcategory($id);
         $notifications = $this->notiRepo->showUnread();
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Category.edit_category', compact('category', 'notifications','profile'));
+        return view('confirms.Category.edit_category', compact('category', 'notifications', 'profile'));
+    }
+
+    public function confirmedit(StoreCategory $request,$id)
+    {
+        $data = $request->validated();
+        $category = $this->cateRepo->showcategory($id);
+        
+        $category->name = $data['name'];
+        $category->detail = $data['detail'];
+
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Category.confirm_edit_category', compact('category', 'notifications', 'profile'));
     }
 
     /**
@@ -114,9 +146,9 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(StoreCategory $request, $id)
+    public function update(Request $request, $id)
     {
-        $data = $request->validated();
+        $data = $request;
 
         $category = $this->cateRepo->showcategory($id);
 

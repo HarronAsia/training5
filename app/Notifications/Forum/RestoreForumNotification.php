@@ -49,6 +49,7 @@ class RestoreForumNotification extends Notification
         
         return [
                 'data' => 'Forum id ' .$forum->id. ' has been restored by '. $user->name ,
+                'user_id' => $user->id,
             ];
     }
 
