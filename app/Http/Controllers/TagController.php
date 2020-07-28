@@ -11,10 +11,10 @@ use App\Repositories\Notification\NotificationRepositoryInterface;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Auth;
 
-use App\Notifications\Tag\AddTagNotification;
-use App\Notifications\Tag\EditTagNotification;
-use App\Notifications\Tag\DeleteTagNotification;
-use App\Notifications\Tag\RestoreTagNotification;
+use App\Notifications\For_ADMIN\Tag\AddTagNotification;
+use App\Notifications\For_ADMIN\Tag\EditTagNotification;
+use App\Notifications\For_ADMIN\Tag\DeleteTagNotification;
+use App\Notifications\For_ADMIN\Tag\RestoreTagNotification;
 
 class TagController extends Controller
 {

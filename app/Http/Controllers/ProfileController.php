@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Profile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 use App\Repositories\User\Account\ProfileRepositoryInterface;
 use App\Repositories\Notification\NotificationRepositoryInterface;
@@ -86,8 +87,6 @@ class ProfileController extends Controller
     public function show($id)
     {
         
-        
-        
         $user = $this->userRepo->showUser($id);
         $profile = $this->profileRepo->getProfile($user->id);
         
@@ -103,10 +102,19 @@ class ProfileController extends Controller
      */
     public function edit($id)
     {
+        
         $profile = $this->profileRepo->getProfile($id);
-        $user = $this->userRepo->showUser($id);
-        $notifications = $this->notiRepo->showUnread();
-        return view('confirms.User.Profile.edit', compact('profile', 'user','notifications'));
+        if(Auth::user()->id != $profile->user_id)
+        {
+            return redirect()->route('profile.index',['name'=>Auth::user()->name,'id'=>Auth::user()->id]);
+        }
+        else
+        {
+            $user = $this->userRepo->showUser($id);
+            $notifications = $this->notiRepo->showUnread();
+            return view('confirms.User.Profile.edit', compact('profile', 'user','notifications'));
+        }
+        
     }
 
     /**

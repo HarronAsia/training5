@@ -45,7 +45,7 @@
                         <td>
                             @if($category->deleted_at != NULL)
                             <div class="pull-right">
-                                <a href="{{ route('admin.category.restore', ['id'=> $category->id])}}">
+                                <a href="{{ route('categories.admin.restore', ['categoryid'=> $category->id])}}">
                                     <button type="button" class="btn btn-success btn-lg">
                                         <i class="fa fa-undo"></i>
                                     </button>
@@ -53,14 +53,14 @@
                             </div>
                             @else
                             <div class="pull-right">
-                                <a href="{{ route('admin.category.edit', ['id'=> $category->id])}}">
+                                <a href="{{ route('categories.admin.edit', ['categoryid'=> $category->id])}}">
                                     <button type="button" class="btn btn-info btn-lg">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </a>
                             </div>
                             <div class="pull-right">
-                                <a href="{{ route('admin.category.delete', ['id'=> $category->id])}}">
+                                <a href="{{ route('categories.admin.delete', ['categoryid'=> $category->id])}}">
                                     <button type="button" class="btn btn-danger btn-lg">
                                         <i class="fa fa-trash"></i>
                                     </button>

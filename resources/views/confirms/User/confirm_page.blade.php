@@ -6,7 +6,7 @@
         <!-- Profile Page -->
         <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
 
-        <form action="{{ route('profile.update', ['id'=> Auth::user()->id])}} " method="POST" enctype="multipart/form-data" id="editprofile">
+        <form action="{{ route('profile.update', ['name' => Auth::user()->name,'id'=> Auth::user()->id])}} " method="POST" enctype="multipart/form-data" id="editprofile">
             @csrf
 
             <div class="form-group">
@@ -32,7 +32,10 @@
                     </div>
                 </div>
             </div>
-
+            <input type="hidden" name='name' value="{{$user->name}}">
+            <input type="hidden" name='dob' value="{{$user->dob}}">
+            <input type="hidden" name='number' value="{{$user->number}}">
+            <input type="hidden" name='photo' value="{{$user->photo}}">
             <button type="submit" class="btn btn-default" id="editprofilebtn">Submit</button>
         </form>
 

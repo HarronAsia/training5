@@ -16,7 +16,7 @@ class PostRepository extends BaseRepository implements PostRepositoryInterface
 
     public function showall($id)
     {
-        return $this->model = Post::with('comments','likes')->withTrashed()->where('community_id',$id)->paginate(5);;
+        return $this->model = Post::with('comments','likes','like')->withTrashed()->where('community_id',$id)->paginate(5);
         
     }
 

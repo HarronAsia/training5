@@ -27,13 +27,13 @@ class FollowerRepository extends BaseRepository implements FollowerRepositoryInt
     public function showfollowerThread($id,$threadid)
     {        
         
-        return $this->model =  Follower::get()->where('follower_id',$id)->where('following_id',$threadid);
+        return $this->model =  Follower::where('follower_id',$id)->where('following_id',$threadid)->first();
     }
 
     public function showfollowerCommunity($id,$communityid)
     {        
      
-        return $this->model =  Follower::get()->where('follower_id',$id)->where('following_id',$communityid);
+        return $this->model =  Follower::get()->where('follower_id',$id)->where('following_id',$communityid)->first();
     }
 
 }

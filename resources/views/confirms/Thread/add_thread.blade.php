@@ -23,10 +23,12 @@
 
                     <div class="modal-body">
 
-                        @if(Auth::user()->role == "manager")
+                        @if(Auth::user()->role == 'manager')
                         <form action="{{ route('manager.thread.add.confirm',['id'=>$forum->id])}}" method="POST" enctype="multipart/form-data">
-                            @else
+                            @elseif(Auth::user()->role == 'admin')
                             <form action="{{ route('admin.thread.add.confirm',['id'=>$forum->id])}}" method="POST" enctype="multipart/form-data">
+                                @else
+                                <form action="{{ route('member.thread.add.confirm',['id'=>$forum->id])}}" method="POST" enctype="multipart/form-data">
                                 @endif
 
                                 @csrf

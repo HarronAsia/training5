@@ -36,33 +36,34 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($reports as $report)
-                        <td>{{$report->id}}</td>
-                        <td>{{$report->reason}}</td>
-                        <th>{{$report->detail}}</th>
-                        <th>{{$report->reportable_type}}</th>
-                        <td>{{$report->created_at}}</td>
-                        <td>{{$report->updated_at}}</td>
-                        <td>{{$report->deleted_at}}</td>
-                        <td>
-                            @if($report->deleted_at != NULL)
-                            <div class="pull-right">
-                                <a href="{{ route('admin.report.restore', ['id'=> $report->id])}}">
-                                    <button type="button" class="btn btn-success btn-lg">
-                                        <i class="fa fa-undo"></i>
-                                    </button>
-                                </a>
-                            </div>
-                            @else
-                            <div class="pull-right">
-                                <a href="{{ route('admin.report.delete', ['id'=> $report->id])}}">
-                                    <button type="button" class="btn btn-danger btn-lg">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </a>
-                            </div>
-                            @endif
-                        </td>
+                        <tr>
+                            @foreach ($reports as $report)
+                            <td>{{$report->id}}</td>
+                            <td>{{$report->reason}}</td>
+                            <th>{{$report->detail}}</th>
+                            <th>{{$report->reportable_type}}</th>
+                            <td>{{$report->created_at}}</td>
+                            <td>{{$report->updated_at}}</td>
+                            <td>{{$report->deleted_at}}</td>
+                            <td>
+                                @if($report->deleted_at != NULL)
+                                <div class="pull-right">
+                                    <a href="{{ route('admin.report.restore', ['id'=> $report->id])}}">
+                                        <button type="button" class="btn btn-success btn-lg">
+                                            <i class="fa fa-undo"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                @else
+                                <div class="pull-right">
+                                    <a href="{{ route('admin.report.delete', ['id'=> $report->id])}}">
+                                        <button type="button" class="btn btn-danger btn-lg">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </a>
+                                </div>
+                                @endif
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>

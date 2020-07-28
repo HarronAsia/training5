@@ -57,22 +57,23 @@
                 </div>
                 @if(Auth::user()->id == $user->id)
                 <div class="card border-secondary">
-                    <a href="{{ route('profile.edit', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}}" class="btn btn-info">Edit Profile</a>
+                    <a href="{{ route('profile.edit', ['name' => Auth::user()->name?? '','id'=> Auth::user()->id])}}" class="btn btn-info">Edit Profile</a>
                 </div>
                 <br>
-                    @foreach($profile as $value)
-                    @if($value->user_id == $user->id)
+                   
+                    @if($profile->user_id?? '' == $user->id)
 
                     @else
                     <div class="card border-secondary">
-                        <a href="{{ route('account.profile.add', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}}" class="btn btn-info">Add Account Personal</a>
+                        <a href="{{ route('account.profile.add', ['name'=> Auth::user()->name?? '','id'=> Auth::user()->id])}}" class="btn btn-info">Add Account Personal</a>
                     </div>
                     @endif
-                    @endforeach
+                    
                 @endif
             </div>
         </div>
         <!-- Profile Page -->
+
     </div>
 </div>
 

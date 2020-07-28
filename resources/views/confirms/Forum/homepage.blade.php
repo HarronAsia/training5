@@ -22,21 +22,25 @@
                     @if(Auth::guest())
 
                     @else
-                        @if(Auth::user()->role == 'manager')
+                        @if(Auth::user()->role == 'admin')
+                        <div class="text-right">
+                            <a href="{{ route('admin.forum.add', ['categoryid'=> $category->id])}}">
+                                <button type="button" class="btn btn-primary">Add Forum</button>
+                            </a>
+                        </div>
+                        @elseif(Auth::user()->role == 'manager')
                         <div class="text-right">
                             <a href="{{ route('manager.forum.add', ['categoryid'=> $category->id])}}">
                                 <button type="button" class="btn btn-primary">Add Forum</button>
                             </a>
                         </div>
                         @else
-                        <div class="text-right">
-                            <a href="{{ route('admin.forum.add', ['categoryid'=> $category->id])}}">
-                                <button type="button" class="btn btn-primary">Add Forum</button>
-                            </a>
-                        </div>
+
                         @endif
+
+
                     @endif
-                  
+
                 </div>
                 <div class="card-body">
                     <div class="table-responsive" id="showBlog">
@@ -50,12 +54,18 @@
                             <tbody>
                                 @foreach($forums as $forum)
                                 @if(Auth::guest())
+
+                                @if($forum->deleted_at == NULL)
+
+                                @else
                                 <tr>
                                     <td>{{$forum->id}}</td>
                                     <td><a href="{{ route('thread.show', ['id'=>  $forum->id])}}">{{$forum->title}} </a></td>
                                 </tr>
+                                @endif
+
                                 @else
-                                    @if( Auth::user()->role == "admin")
+                                    @if( Auth::user()->role == 'admin')
                                     <tr>
 
                                         <td>{{$forum->id}}</td>
@@ -87,43 +97,64 @@
                                             @endif
                                         </td>
                                     </tr>
+                                @elseif(Auth::user()->role == 'manager')
+                                <tr>
+                                    @if($forum->deleted_at != NULL)
+
                                     @else
-                                    <tr>
+                                    <td>{{$forum->id}}</td>
+                                    <td>
+                                        <a href="{{ route('manager.thread.show', ['id'=>  $forum->id])}}">{{$forum->title}} </a>
+                                    </td>
+                                    <td>
+                                        @if(Auth::user()->email_verified_at)
 
-                                        <td>{{$forum->id}}</td>
-                                        <td><a href="{{ route('manager.thread.show', ['id'=>  $forum->id])}}">{{$forum->title}} </a></td>
-                                        <td>
-                                            @if($forum->deleted_at != NULL)
+                                        @else
+                                            @if(Auth::user()->id == $forum->user_id)
+                                            <div class="pull-right">
+                                                <a href="{{ route('manager.forum.edit', ['categoryid'=> $category->id,'forumid' => $forum->id])}}">
+                                                    <button type="button" class="btn btn-info btn-lg">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                </a>
+                                            </div>
 
+                                            <div class="pull-right">
+                                                <a href="{{ route('manager.forum.delete', ['categoryid'=> $category->id,'forumid' => $forum->id])}}">
+                                                    <button type="button" class="btn btn-danger btn-lg">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </a>
+                                            </div>
                                             @else
-                                                @if(Auth::user()->id == $forum->user_id)
-                                                <div class="pull-right">
-                                                    <a href="{{ route('manager.forum.edit', ['categoryid'=> $category->id,'forumid' => $forum->id])}}">
-                                                        <button type="button" class="btn btn-info btn-lg">
-                                                            <i class="fa fa-edit"></i>
-                                                        </button>
-                                                    </a>
-                                                </div>
-                                            
-                                                <div class="pull-right">
-                                                    <a href="{{ route('manager.forum.delete', ['categoryid'=> $category->id,'forumid' => $forum->id])}}">
-                                                        <button type="button" class="btn btn-danger btn-lg">
-                                                            <i class="fa fa-trash"></i>
-                                                        </button>
-                                                    </a>
-                                                </div>
-                                                @else
 
-                                                @endif
-                                          
                                             @endif
-                                        </td>
-                                    </tr>
+                                        @endif
+                                        
+                                    @endif
+                                    </td>
 
+                                </tr>
+                                @else
+                                <tr>
+                                    @if($forum->deleted_at != NULL)
+
+                                    @else
+                                    <td>{{$forum->id}}</td>
+                                    <td>
+                                        <a href="{{ route('member.thread.show', ['id'=>  $forum->id])}}">{{$forum->title}} </a>
+                                    </td>
+                                    <td>
+                                        Only for admin or Manager
+                                    </td>
                                     @endif
 
+
+                                </tr>
                                 @endif
-                                
+
+                                @endif
+
                                 @endforeach
 
                             </tbody>

@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\DB;
 
 use App\Http\Requests\StoreCommunity;
 
-use App\Notifications\Community\AddCommunityNotification;
-use App\Notifications\Community\EditCommunityNotification;
-use App\Notifications\Community\DeleteCommunityNotification;
-use App\Notifications\Community\RestoreCommunityNotification;
-use App\Notifications\Community\GetFollowCommunityNotfication;
-use App\Notifications\Community\GetunFollowCommunityNotfication;
+use App\Notifications\For_ADMIN\Community\AddCommunityNotification;
+use App\Notifications\For_ADMIN\Community\EditCommunityNotification;
+use App\Notifications\For_ADMIN\Community\DeleteCommunityNotification;
+use App\Notifications\For_ADMIN\Community\RestoreCommunityNotification;
+use App\Notifications\For_ADMIN\Community\GetFollowCommunityNotfication;
+use App\Notifications\For_ADMIN\Community\GetunFollowCommunityNotfication;
 
 use App\Repositories\Post\PostRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;

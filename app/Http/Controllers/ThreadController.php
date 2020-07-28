@@ -14,12 +14,12 @@ use App\Imports\ThreadsImport;
 use App\Http\Requests\StoreThread;
 use Illuminate\Support\Facades\Auth;
 
-use App\Notifications\Thread\AddThreadNotification;
-use App\Notifications\Thread\EditThreadNotification;
-use App\Notifications\Thread\DeleteThreadNotification;
-use App\Notifications\Thread\RestoreThreadNotification;
-use App\Notifications\Thread\GetFollowThreadNotfication;
-use App\Notifications\Thread\GetunFollowThreadNotfication;
+use App\Notifications\For_ADMIN\Thread\AddThreadNotification;
+use App\Notifications\For_ADMIN\Thread\EditThreadNotification;
+use App\Notifications\For_ADMIN\Thread\DeleteThreadNotification;
+use App\Notifications\For_ADMIN\Thread\RestoreThreadNotification;
+use App\Notifications\For_ADMIN\Thread\GetFollowThreadNotfication;
+use App\Notifications\For_ADMIN\Thread\GetunFollowThreadNotfication;
 
 
 
@@ -153,25 +153,36 @@ class ThreadController extends Controller
         {
             return redirect()->route('manager.thread.show', $id);
         }
-        else
+        elseif(Auth::user()->role == 'admin')
         {
             return redirect()->route('admin.thread.show', $id);
+        }
+        else
+        {
+            return redirect()->route('member.thread.show', $id);
         }
         
     }
 
     public function edit($id, $threadid)
     {
-
+        
         $forum = $this->forumRepo->showforum($id);
         $thread = $this->threadRepo->showThread($threadid);
-
-        $tags = $this->tagRepo->showall();
-        $threadtag = $this->tagRepo->getTag($thread->tag_id);
-
-        $notifications = $this->notiRepo->showUnread();
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('confirms.Thread.edit', compact('thread', 'tags', 'threadtag', 'forum', 'notifications', 'profile'));
+        if(Auth::user()->id != $thread->user_id)
+        {
+            return redirect()->route('member.thread.show', $forum->id);
+        }
+        else
+        {
+            $tags = $this->tagRepo->showall();
+            $threadtag = $this->tagRepo->getTag($thread->tag_id);
+    
+            $notifications = $this->notiRepo->showUnread();
+            $profile = $this->profileRepo->getProfile(Auth::user()->id);
+            return view('confirms.Thread.edit', compact('thread', 'tags', 'threadtag', 'forum', 'notifications', 'profile'));
+        }
+       
     }
 
     public function confirmupdate(StoreThread $request, $id, $threadid)
@@ -281,8 +292,8 @@ class ThreadController extends Controller
 
             $profile = $this->profileRepo->getProfile(Auth::user()->id);
 
-            $follower = $this->followRepo->showfollowerThread(Auth::user()->id, $value->id);
-
+            $follower = $this->followRepo->showfollowerThread( Auth::user()->id,$value->id);
+            //dd($follower);
             return view('confirms.Thread.index', compact('thread', 'user', 'tag', 'notifications', 'profile', 'follower'));
         }
     }

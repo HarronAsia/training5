@@ -73,9 +73,15 @@ class AdminRepository extends BaseRepository implements AdminRepositoryInterface
     {
         return $this->model->comments = DB::table('comments')->get()->count();
     }
+
     public function countAllReports()
     {
         return $this->model->comments = DB::table('reports')->get()->count();
+    }
+
+    public function countAllNotifications()
+    {
+        return $this->model->comments = DB::table('notifications')->get()->count();
     }
 
     //*===============Count =============================*//

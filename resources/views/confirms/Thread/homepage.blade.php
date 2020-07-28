@@ -12,18 +12,31 @@
             @if(Auth::guest())
 
             @else
-            @if(Auth::user()->role == 'manager')
-            <a href="{{ route('manager.thread.add', ['id'=> $forum->id])}}">
-                <button type="button" class="btn btn-primary">Add Thread</button>
-            </a>
-            @else
-            <a href="{{ route('admin.tag.add')}}">
-                <button type="button" class="btn btn-primary">Add Tag</button>
-            </a>
-            <a href="{{ route('admin.thread.add', ['id'=> $forum->id])}}">
-                <button type="button" class="btn btn-primary">Add Thread</button>
-            </a>
-            @endif
+               
+                   
+                    @if(Auth::user()->role == 'admin')
+                    <a href="{{ route('admin.tag.add')}}">
+                        <button type="button" class="btn btn-primary">Add Tag</button>
+                    </a>
+                    <a href="{{ route('admin.thread.add', ['id'=> $forum->id])}}">
+                        <button type="button" class="btn btn-primary">Add Thread</button>
+                    </a>
+                    @else
+                        @if(Auth::user()->email_verified_at == NULL)
+
+                        @else
+                            @if(Auth::user()->role == 'manager')
+                            <a href="{{ route('manager.thread.add', ['id'=> $forum->id])}}">
+                                <button type="button" class="btn btn-primary">Add Thread</button>
+                            </a>
+                            
+                            @else
+                            <a href="{{ route('member.thread.add', ['id'=> $forum->id])}}">
+                                <button type="button" class="btn btn-primary">Add Thread</button>
+                            </a>
+                            @endif
+                        @endif
+                    @endif
             @endif
         </div>
         <div class="card-body">
@@ -59,7 +72,7 @@
                             <td>{{$thread->detail}}</td>
                             <td>{{$thread->created_at}}</td>
                             <td>{{$thread->updated_at}}</td>
-                            <td></td>
+                            <td>Only for admin</td>
                         </tr>
                         @else
                         @if ($thread->status == "private")
@@ -113,58 +126,7 @@
 
                         @else
                         <tr>
-
-                            @if( Auth::user()->role == "manager")
-                            @if($thread->deleted_at != NULL)
-
-                            @else
-                            <td>{{$thread->id}}</td>
-                            <td>
-                                <a href="{{ route('manager.thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
-                                    <img src="{{asset('storage/thread/'.$thread->title.'/'.$thread->thumbnail.'/')}}" alt="Image" style="width:200px ;height:200px;">
-                                </a>
-                            </td>
-
-                            <td>
-                                <div>
-                                    {{$thread->title}}
-                                </div>
-                            </td>
-                            <td>{{$thread->detail}}</td>
-                            <td>{{$thread->created_at}}</td>
-                            <td>{{$thread->updated_at}}</td>
-                            <td>
-
-                                @can('updatethread', $thread)
-                                <div class="pull-left">
-                                    <a href="{{ route('manager.thread.edit', ['id' => $forum->id ,'threadid' =>$thread->id])}}">
-                                        <button type="button" class="btn btn-info btn-lg">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                    </a>
-                                </div>
-                                @endcan
-
-                                @cannot('updatethread', $thread)
-
-                                @endcannot
-
-                                @can('deletethread', $thread)
-                                <div class="pull-right">
-                                    <a href="{{ route('manager.thread.delete', ['id' => $forum->id ,'threadid' =>$thread->id])}}">
-                                        <button type="button" class="btn btn-danger btn-lg">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </a>
-                                </div>
-                                @endcan
-
-                                @cannot('deletethread', $thread)
-
-                                @endcannot
-                            </td>
-                            @endif
-                            @else
+                            @if (Auth::user()->role == 'admin')
 
                             <td>{{$thread->id}}</td>
                             <td>
@@ -212,8 +174,85 @@
                                 </div>
                                 @endif
                             </td>
+                            @else
+                                @if(Auth::user()->email_verified_at == NULL)
 
-                            @endif
+                                @else
+                                    @if( Auth::user()->role == 'manager')
+                                        @if($thread->deleted_at != NULL)
+
+                                        @else
+                                        <td>{{$thread->id}}</td>
+                                        <td>
+                                            <a href="{{ route('manager.thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
+                                                <img src="{{asset('storage/thread/'.$thread->title.'/'.$thread->thumbnail.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                                            </a>
+                                        </td>
+
+                                        <td>
+                                            <div>
+                                                {{$thread->title}}
+                                            </div>
+                                        </td>
+                                        <td>{{$thread->detail}}</td>
+                                        <td>{{$thread->created_at}}</td>
+                                        <td>{{$thread->updated_at}}</td>
+                                        <td>
+
+                                            @can('updatethread', $thread)
+                                            <div class="pull-left">
+                                                <a href="{{ route('manager.thread.edit', ['id' => $forum->id ,'threadid' =>$thread->id])}}">
+                                                    <button type="button" class="btn btn-info btn-lg">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                </a>
+                                            </div>
+                                            @endcan
+
+                                            @cannot('updatethread', $thread)
+
+                                            @endcannot
+
+                                            @can('deletethread', $thread)
+                                            <div class="pull-right">
+                                                <a href="{{ route('manager.thread.delete', ['id' => $forum->id ,'threadid' =>$thread->id])}}">
+                                                    <button type="button" class="btn btn-danger btn-lg">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </a>
+                                            </div>
+                                            @endcan
+
+                                            @cannot('deletethread', $thread)
+
+                                            @endcannot
+                                        </td>
+                                        @endif
+                                
+                                    @else
+                                    <td>{{$thread->id}}</td>
+                                        <td>
+                                            <a href="{{ route('member.thread.detail', ['id' => $forum->id ,'threadid' => $thread->id ])}}">
+                                                @if($thread->thumbnail == NULL)
+                                                <img src="{{asset('storage/blank.png')}}" alt="Image" style="width:200px ;height:200px;">
+                                                @else
+                                                <img src="{{asset('storage/thread/'.$thread->title.'/'.$thread->thumbnail.'/')}}" alt="Image" style="width:200px ;height:200px;">
+                                                @endif
+                                            </a>
+                                        </td>
+
+                                        <td>
+                                            <div>
+                                                {{$thread->title}}
+                                            </div>
+                                        </td>
+                                        <td>{{$thread->detail}}</td>
+                                        <td>{{$thread->created_at}}</td>
+                                        <td>{{$thread->updated_at}}</td>
+                                        <td> Only for Admin or Manager! </td>
+                                    @endif
+                                @endif  
+                            @endif  
                         </tr>
 
                         @endif

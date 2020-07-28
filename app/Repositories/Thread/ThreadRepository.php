@@ -48,7 +48,7 @@ class ThreadRepository extends BaseRepository implements ThreadRepositoryInterfa
 
     public function getThread($id)
     {
-        return $this->model = Thread::withTrashed()->with('comments', 'likes')->where('id', $id)->paginate(10);
+        return $this->model = Thread::withTrashed()->with('comments', 'likes','like')->where('id', $id)->paginate(10);
     }
 
     public function showThread($id)
@@ -81,4 +81,9 @@ class ThreadRepository extends BaseRepository implements ThreadRepositoryInterfa
 
         return $this->model = DB::table('threads')->join('users', 'user_id', '=', 'users.id')->where('role', '"admin"')->select('threads.*')->paginate(5);
     }
+
+//     public function getAllThreadsbyEachUser()
+//     {
+//         return $this->model = Thread::join('users', 'user_id', '=', 'users.id')
+//     }
 }

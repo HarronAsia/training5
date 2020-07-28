@@ -19,6 +19,7 @@ interface AdminRepositoryInterface
     public function countAllPosts();
     public function countAllComments();
     public function countAllReports();
+    public function countAllNotifications();
     //Count//
 
 

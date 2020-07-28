@@ -14,7 +14,7 @@
             @if ($user->photo == NULL)
             <img src="{{asset('storage/default.png')}}" alt="Image" style="width:200px ;height:200px;">
             @else
-            <img src="{{asset('storage/'.Auth::user()->name.'/'.Auth::user()->photo)}}" alt="Image" style="width:200px ;height:200px;">
+            <img src="{{asset('storage/'.Auth::user()->name?? ''.'/'.Auth::user()->photo)}}" alt="Image" style="width:200px ;height:200px;">
             @endif
         </div>
 

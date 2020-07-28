@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests\StoreCategory;
 
-use App\Notifications\Category\AddCategoryNotification;
-use App\Notifications\Category\DeleteCategoryNotification;
-use App\Notifications\Category\EditCategoryNotification;
-use App\Notifications\Category\RestoreCategoryNotification;
+use App\Notifications\For_ADMIN\Category\AddCategoryNotification;
+use App\Notifications\For_ADMIN\Category\DeleteCategoryNotification;
+use App\Notifications\For_ADMIN\Category\EditCategoryNotification;
+use App\Notifications\For_ADMIN\Category\RestoreCategoryNotification;
 
 use App\Repositories\Forum\ForumRepositoryInterface;
 use App\Repositories\Category\CategoryRepositoryInterface;
@@ -87,7 +87,7 @@ class CategoryController extends Controller
         $category->detail = $data['detail'];
         
         $category->save();
-        $category->notify(new AddCategoryNotification);
+        $category->notify(new AddCategoryNotification());
         return redirect()->route('home');
     }
 

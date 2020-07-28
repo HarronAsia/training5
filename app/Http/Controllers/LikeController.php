@@ -104,7 +104,18 @@ class LikeController extends Controller
             'user_id' => Auth::user()->id
         ]);
 
-        return redirect()->route('community.show',$post->community_id);
+        if(Auth::user()->role == 'admin')
+        {
+            return redirect()->route('admin.community.show', [$post->community_id]);
+        }
+        elseif(Auth::user()->role == 'manager')
+        {
+            return redirect()->route('manager.community.show', [$post->community_id]);
+        }
+        else
+        {
+            return redirect()->route('member.community.show', [$post->community_id]);
+        }
     }
 
     public function unlike($postid)
@@ -124,7 +135,18 @@ class LikeController extends Controller
             'user_id' => Auth::user()->id
         ]);
 
-        return redirect()->route('thread.detail',[$thread->forum_id,$thread->id]);
+        if(Auth::user()->role == 'admin')
+        {
+            return redirect()->route('admin.thread.detail', [$thread->forum_id, $thread->id]);
+        }
+        elseif(Auth::user()->role == 'manager')
+        {
+            return redirect()->route('manager.thread.detail', [$thread->forum_id, $thread->id]);
+        }
+        else
+        {
+            return redirect()->route('member.thread.detail', [$thread->forum_id, $thread->id]);
+        }
     }
 
     public function unlikethread($threadid)

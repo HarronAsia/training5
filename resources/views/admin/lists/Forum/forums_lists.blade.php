@@ -43,7 +43,7 @@
                         <td>
                             @if($forum->deleted_at != NULL)
                             <div class="pull-right">
-                                <a href="{{ route('admin.forum.restore', ['id'=> $forum->id])}}">
+                                <a href="{{ route('forums.admin.restore', ['forumid'=> $forum->id])}}">
                                     <button type="button" class="btn btn-success btn-lg">
                                         <i class="fa fa-undo"></i>
                                     </button>
@@ -51,14 +51,14 @@
                             </div>
                             @else
                             <div class="pull-right">
-                                <a href="{{ route('admin.forum.edit', ['id'=> $forum->id])}}">
+                                <a href="{{ route('forums.admin.edit', ['forumid'=> $forum->id])}}">
                                     <button type="button" class="btn btn-info btn-lg">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </a>
                             </div>
                             <div class="pull-right">
-                                <a href="{{ route('admin.forum.delete', ['id'=> $forum->id])}}">
+                                <a href="{{ route('forums.admin.delete', ['forumid'=> $forum->id])}}">
                                     <button type="button" class="btn btn-danger btn-lg">
                                         <i class="fa fa-trash"></i>
                                     </button>

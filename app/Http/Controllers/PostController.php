@@ -7,10 +7,10 @@ use App\Models\Community;
 
 use App\Http\Requests\StorePost;
 
-use App\Notifications\Post\AddPostNotification;
-use App\Notifications\Post\EditPostNotification;
-use App\Notifications\Post\DeletePostNotification;
-use App\Notifications\Post\RestorePostNotification;
+use App\Notifications\For_ADMIN\Post\AddPostNotification;
+use App\Notifications\For_ADMIN\Post\EditPostNotification;
+use App\Notifications\For_ADMIN\Post\DeletePostNotification;
+use App\Notifications\For_ADMIN\Post\RestorePostNotification;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -170,7 +170,14 @@ class PostController extends Controller
 
         $post->update();
         $post->notify(new EditPostNotification());
-        return redirect()->route('community.show', $post->community_id);
+        if(Auth::user()->role == 'admin')
+        {
+            return redirect()->route('admin.community.show', [$post->community_id]);
+        }
+        elseif(Auth::user()->role == 'manager')
+        {
+            return redirect()->route('manager.community.show', [$post->community_id]);
+        }
     }
 
     /**

@@ -6,6 +6,13 @@ use App\Models\AdminPanel;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\StoreAdmin;
+use App\Http\Requests\StoreCategory;
+use App\Http\Requests\StoreForum;
+use App\Http\Requests\StoreThread;
+use App\Http\Requests\StoreCommunity;
+use App\Http\Requests\StorePost;
+use App\Http\Requests\StoreComment;
+
 use Illuminate\Support\Facades\Auth;
 
 use App\Repositories\Admin\AdminRepositoryInterface;
@@ -40,10 +47,19 @@ class AdminPanelController extends Controller
     protected $commuRepo;
     protected $postRepo;
 
-    public function __construct(AdminRepositoryInterface $adminRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo, 
-                            ThreadRepositoryInterface $threadRepo, PostRepositoryInterface $postRepo, CommentRepositoryInterface $commRepo, ReportRepositoryInterface $repoRepo,
-                            CategoryRepositoryInterface $cateRepo, ForumRepositoryInterface $forumRepo, TagRepositoryInterface $tagRepo, CommunityRepositoryInterface $commuRepo)
-    {
+    public function __construct(
+        AdminRepositoryInterface $adminRepo,
+        ProfileRepositoryInterface $profileRepo,
+        NotificationRepositoryInterface $notiRepo,
+        ThreadRepositoryInterface $threadRepo,
+        PostRepositoryInterface $postRepo,
+        CommentRepositoryInterface $commRepo,
+        ReportRepositoryInterface $repoRepo,
+        CategoryRepositoryInterface $cateRepo,
+        ForumRepositoryInterface $forumRepo,
+        TagRepositoryInterface $tagRepo,
+        CommunityRepositoryInterface $commuRepo
+    ) {
         $this->middleware('auth');
         $this->adminRepo = $adminRepo;
 
@@ -86,8 +102,25 @@ class AdminPanelController extends Controller
 
         $reports = $this->adminRepo->countAllReports();
 
-        return view('admin.dashboard', compact('users', 'managers', 'admins', 'categories', 'forums', 'managers_threads', 'admins_threads', 'tags', 
-                                                'communities', 'posts', 'comments', 'notifications', 'profile','reports'));
+        $allnotifications = $this->adminRepo->countAllNotifications();
+
+        return view('admin.dashboard', compact(
+            'users',
+            'managers',
+            'admins',
+            'categories',
+            'forums',
+            'managers_threads',
+            'admins_threads',
+            'tags',
+            'communities',
+            'posts',
+            'comments',
+            'notifications',
+            'profile',
+            'reports',
+            'allnotifications'
+        ));
     }
 
     /**
@@ -276,7 +309,7 @@ class AdminPanelController extends Controller
 
         $this->adminRepo->editforAdmin($user->id);
 
-        return redirect()->route('admin.list');
+        return redirect()->route('admin.list', ['id' => Auth::user()->id]);
     }
 
     public function destroyadmins($id)
@@ -299,6 +332,39 @@ class AdminPanelController extends Controller
         return view('admin.lists.Category.categories_lists', compact('categories', 'notifications', 'profile'));
     }
 
+    public function CategoriesEdit($categoryid)
+    {
+        $category = $this->cateRepo->showcategory($categoryid);
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.admin.Category.edit_Category', compact('category', 'notifications', 'profile'));
+    }
+    public function CategoriesUpdate(StoreCategory $request, $categoryid)
+    {
+        $data = $request->validated();
+
+        $category = $this->cateRepo->showcategory($categoryid);
+
+        $category->name = $data['name'];
+        $category->detail = $data['detail'];
+
+        $category->save();
+
+        return redirect()->route('categories.admin.list');
+    }
+    public function CategoriesDelete($categoryid)
+    {
+        $this->cateRepo->deletecategory($categoryid);
+
+        return redirect()->back();
+    }
+
+    public function CategoriesRestore($categoryid)
+    {
+        $this->cateRepo->restorecategory($categoryid);
+
+        return redirect()->back();
+    }
     //*===============For Admins Categories=============================*//
 
     //*===============For Admins Forums=============================*//
@@ -312,6 +378,48 @@ class AdminPanelController extends Controller
         return view('admin.lists.Forum.forums_lists', compact('forums', 'notifications', 'profile'));
     }
 
+    public function ForumsEdit( $forumid)
+    {
+
+        $forum = $this->forumRepo->showforum($forumid);
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.Forum.edit', compact('forum', 'notifications', 'profile'));
+    }
+    
+    public function ForumsUpdate(StoreForum $request,  $forumid)
+    {
+
+        $data = $request->validated();
+
+        $forum = $this->forumRepo->showforum($forumid);
+
+        $forum->title = $data['title'];
+        $forum->user_id = Auth::user()->id;
+        dd($forum);
+        $forum->update();
+        
+        return redirect()->route('forums.admin.list');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function ForumsDelete($forumid)
+    {
+        $this->forumRepo->deleteForums($forumid);
+        return redirect()->back();
+    }
+
+    public function ForumsRestore( $forumid)
+    {
+        $this->forumRepo->restoreForums($forumid);
+
+        return redirect()->back();
+    }
     //*===============For Admins Forums=============================*//
 
     //*===============For Admins Threads=============================*//
@@ -325,9 +433,79 @@ class AdminPanelController extends Controller
         return view('admin.lists.Thread.AdminThreads.admins_lists', compact('threads', 'notifications', 'profile'));
     }
 
+    public function AdminsThreadsEdit($threadid)
+    {
+        $thread = $this->threadRepo->showThread($threadid);
+
+        $tags = $this->tagRepo->showall();
+        $threadtag = $this->tagRepo->getTag($thread->tag_id);
+
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+
+        return view('confirms.admin.Thread.edit_Thread(Admin)', compact('thread', 'tags', 'threadtag', 'notifications', 'profile'));
+    }
+
+    public function AdminsThreadsUpdate(StoreThread $request, $threadid)
+    {
+        $data = $request->validated();
+        $thread = $this->threadRepo->showThread($threadid);
+
+
+        $thread->title = $data['title'];
+        $thread->tag_id = $data['tag_id'];
+
+        $thread->detail = $data['detail'];
+        $thread->status = $data['status'];
+
+        $old_thumbnail = $thread->thumbnail;
+
+        if ($request->hasFile('thumbnail')) {
+
+            $thread->thumbnail = $request->file('thumbnail');
+
+            $extension = $data['thumbnail']->getClientOriginalExtension();
+            $filename =  $data['title'] . '.' . $extension;
+
+            $path = storage_path('app/public/thread/' . $data['title'] . '/');
+
+            if (!file_exists($path . $filename)) {
+
+                $thread->thumbnail->move($path, $filename);
+            } else if (!file_exists($path . $old_thumbnail)) {
+
+                $thread->thumbnail->move($path, $filename);
+            } else {
+
+                unlink($path . $old_thumbnail);
+                $thread->thumbnail->move($path, $filename);
+            }
+        }
+        $data['thumbnail'] = $filename;
+        $thread->thumbnail  = $data['thumbnail'];
+
+        $thread->update();
+        return redirect()->route('admins.threads.list');
+    }
+
+    public function AdminsThreadsDelete($threadid)
+    {
+
+        $this->threadRepo->deleteThreads($threadid);
+
+        return redirect()->route('admins.threads.list');
+    }
+
+    public function AdminsThreadsRestore($threadid)
+    {
+
+        $this->threadRepo->restoreThreads($threadid);
+
+        return redirect()->route('admins.threads.list');
+    }
     //*===============For Admins Threads=============================*//
 
-    //*===============For Admins Threads=============================*//
+    //*===============For Manager Threads=============================*//
     public function ManagersThreads()
     {
 
@@ -338,7 +516,77 @@ class AdminPanelController extends Controller
         return view('admin.lists.Thread.ManagerThreads.managers_lists', compact('threads', 'notifications', 'profile'));
     }
 
-    //*===============For Admins Threads=============================*//
+    public function ManagersThreadsEdit($threadid)
+    {
+        $thread = $this->threadRepo->showThread($threadid);
+
+        $tags = $this->tagRepo->showall();
+        $threadtag = $this->tagRepo->getTag($thread->tag_id);
+
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+
+        return view('confirms.admin.Thread.edit_Thread(Manager)', compact('thread', 'tags', 'threadtag', 'notifications', 'profile'));
+    }
+
+    public function ManagersThreadsUpdate(StoreThread $request, $threadid)
+    {
+        $data = $request->validated();
+        $thread = $this->threadRepo->showThread($threadid);
+
+
+        $thread->title = $data['title'];
+        $thread->tag_id = $data['tag_id'];
+
+        $thread->detail = $data['detail'];
+        $thread->status = $data['status'];
+
+        $old_thumbnail = $thread->thumbnail;
+
+        if ($request->hasFile('thumbnail')) {
+
+            $thread->thumbnail = $request->file('thumbnail');
+
+            $extension = $data['thumbnail']->getClientOriginalExtension();
+            $filename =  $data['title'] . '.' . $extension;
+
+            $path = storage_path('app/public/thread/' . $data['title'] . '/');
+
+            if (!file_exists($path . $filename)) {
+
+                $thread->thumbnail->move($path, $filename);
+            } else if (!file_exists($path . $old_thumbnail)) {
+
+                $thread->thumbnail->move($path, $filename);
+            } else {
+
+                unlink($path . $old_thumbnail);
+                $thread->thumbnail->move($path, $filename);
+            }
+        }
+        $data['thumbnail'] = $filename;
+        $thread->thumbnail  = $data['thumbnail'];
+
+        $thread->update();
+        return redirect()->route('managers.threads.list');
+    }
+
+    public function ManagersThreadsDelete($threadid)
+    {
+
+        $this->threadRepo->deleteThreads($threadid);
+
+        return redirect()->route('managers.threads.list');
+    }
+
+    public function ManagersThreadsRestore($threadid)
+    {
+
+        $this->threadRepo->restoreThreads($threadid);
+
+        return redirect()->route('managers.threads.list');
+    }
+    //*===============For Manager Threads=============================*//
 
     //*===============For Admins Tags=============================*//
     public function Tags()
@@ -362,6 +610,81 @@ class AdminPanelController extends Controller
         return view('admin.lists.Community.communities_lists', compact('communities', 'notifications', 'profile'));
     }
 
+    public function CommunitiesEdit($id)
+    {
+        $community = $this->commuRepo->showcommunity($id);
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.admin.Community.edit_Community', compact('community', 'notifications', 'profile'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function CommunitiesUpdate(StoreCommunity $request, $id)
+    {
+        $data = $request->validated();
+
+        $community = $this->commuRepo->showcommunity($id);
+
+        $community->title = $data['title'];
+
+        $old_banner = $community->banner;
+
+        if ($request->hasFile('banner')) {
+
+            $community->banner =  $data['banner'];
+
+            $extension =  $community->banner->getClientOriginalExtension();
+
+
+            $filename =  $data['title'] . '.' . $extension;
+
+            $path = storage_path('app/public/community/' . $data['title'] . '/');
+
+            if (!file_exists($path . $filename)) {
+
+                $community->banner->move($path, $filename);
+            } else if (!file_exists($path . $old_banner)) {
+
+                $community->banner->move($path, $filename);
+            } else {
+
+                unlink($path . $old_banner);
+                $community->banner->move($path, $filename);
+            }
+        }
+        $community->banner = $filename;
+        $community->update();
+
+        return redirect()->route('communities.admin.list');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function CommunitiesDelete($id)
+    {
+
+        $this->commuRepo->deletecommunity($id);
+
+        return redirect()->back();
+    }
+
+    public function CommunitiesRestore($id)
+    {
+
+        $this->commuRepo->restorecommunity($id);
+
+        return redirect()->back();
+    }
     //*===============For Admins Communities=============================*//
 
     //*===============For Admins Posts=============================*//
@@ -375,6 +698,80 @@ class AdminPanelController extends Controller
         return view('admin.lists.Post.posts_lists', compact('posts', 'notifications', 'profile'));
     }
 
+    public function PostsEdit($postid)
+    {
+
+        $notifications  = $this->notiRepo->showUnread();
+        $post = $this->postRepo->showpost($postid);
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('confirms.admin.Post.edit_Post', compact('post', 'profile','notifications'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function PostsUpdate(StorePost $request, $postid)
+    {
+        $data = $request->validated();
+
+        $post = $this->postRepo->showpost($postid);
+
+        $post->detail = $data['detail'];
+
+        $old_image = $post->image;
+
+        if ($request->hasFile('image')) {
+
+            $post->image =  $data['image'];
+
+            $extension =  $post->image->getClientOriginalExtension();
+
+
+            $filename =  $post->user_id . '.' . $extension;
+
+            $path = storage_path('app/public/post/' . $post->user_id . '/');
+
+            if (!file_exists($path . $filename)) {
+
+                $post->image->move($path, $filename);
+            } else if (!file_exists($path . $old_image)) {
+
+                $post->image->move($path, $filename);
+            } else {
+
+                unlink($path . $old_image);
+                $post->image->move($path, $filename);
+            }
+        }
+        $post->image = $filename;
+
+        $post->update();
+
+        return redirect()->route('posts.admin.list');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function PostsDelete($postid)
+    {
+
+        $this->postRepo->deletepost($postid);
+        return redirect()->back();
+    }
+
+    public function PostsRestore($postid)
+    {
+        $this->postRepo->restorepost($postid);
+        return redirect()->back();
+    }
     //*===============For Admins Posts=============================*//
 
     //*===============For Admins Comments=============================*//
@@ -388,17 +785,105 @@ class AdminPanelController extends Controller
         return view('admin.lists.Comment.comments_lists', compact('comments', 'notifications', 'profile'));
     }
 
-    //*===============For Admins Comments=============================*//
 
-     //*===============For Admins Reports=============================*//
-     public function Reports()
+     public function CommentsEdit($commentid)
      {
  
-         $reports = $this->repoRepo->showall();
+         $comment = $this->commRepo->showComment($commentid);
  
          $notifications = $this->notiRepo->showUnread();
          $profile = $this->profileRepo->getProfile(Auth::user()->id);
-         return view('admin.lists.Report.reports_lists', compact('reports', 'notifications', 'profile'));
+         return view('confirms.admin.Comment.edit_Comment', compact('comment', 'notifications', 'profile'));
+     }
+ 
+     public function CommentsUpdate(StoreComment $request, $commentid)
+     {
+ 
+         $data = $request->validated();
+ 
+         $comment = $this->commRepo->showComment($commentid);
+         $old_image = $comment->comment_image;
+ 
+         if ($request->hasFile('comment_image')) {
+ 
+             $comment->comment_image =  $data['comment_image'];
+ 
+             $extension =  $comment->comment_image->getClientOriginalExtension();
+ 
+ 
+             $filename =  Auth::user()->name . '.' . $extension;
+
+             if($comment->commentable_type == 'App\Post')
+             {
+                $path = storage_path('app/public/comment/post/' . $data['comment_detail'] . '/');
+             }   
+             else
+             {
+                $path = storage_path('app/public/comment/thread/' . $data['comment_detail'] . '/');
+             }
+             
+ 
+             if (!file_exists($path . $filename)) {
+ 
+                 $comment->comment_image->move($path, $filename);
+             } else if (!file_exists($path . $old_image)) {
+ 
+                 $comment->comment_image->move($path, $filename);
+             } else {
+ 
+                 unlink($path . $old_image);
+                 $comment->comment_image->move($path, $filename);
+             }
+         }
+         $comment->comment_image = $filename;
+         $comment->comment_detail = $data['comment_detail'];
+         $comment->user_id = Auth::user()->id;
+ 
+         $comment->update();
+ 
+         $comment = $this->commRepo->showComment($comment->id);
+ 
+         return redirect()->route('comments.admin.list');
+     }
+ 
+     public function CommentsDelete($commentid)
+     {
+ 
+         $this->commRepo->deletecomment($commentid);
+         return redirect()->back();
+     }
+ 
+     public function CommentsRestore($commentid)
+     {
+ 
+         $this->commRepo->restorecomment($commentid);
+         return redirect()->back();
+     }
+
+    //*===============For Admins Comments=============================*//
+
+    //*===============For Admins Reports=============================*//
+    public function Reports()
+    {
+
+        $reports = $this->repoRepo->showall();
+
+        $notifications = $this->notiRepo->showUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        return view('admin.lists.Report.reports_lists', compact('reports', 'notifications', 'profile'));
+    }
+
+    //*===============For Admins Reports=============================*//
+
+     //*===============For Admins Reports=============================*//
+     public function Notifications()
+     {
+ 
+         $Allnotifications = $this->notiRepo->showall();
+ 
+         $notifications = $this->notiRepo->showUnread();
+         $profile = $this->profileRepo->getProfile(Auth::user()->id);
+         return view('admin.lists.Notification.notifications_lists', compact('Allnotifications', 'notifications', 'profile'));
      }
  
      //*===============For Admins Reports=============================*//

@@ -23,9 +23,9 @@ class HomeController extends Controller
     protected $profileRepo;
     protected $notiRepo;
 
-    public function __construct(CategoryRepositoryInterface $cateRepo, ThreadRepositoryInterface $threadRepo, ProfileRepositoryInterface $profileRepo,NotificationRepositoryInterface $notiRepo)
+    public function __construct(CategoryRepositoryInterface $cateRepo, ThreadRepositoryInterface $threadRepo, ProfileRepositoryInterface $profileRepo, NotificationRepositoryInterface $notiRepo)
     {
-       
+
         $this->cateRepo = $cateRepo;
         $this->threadRepo = $threadRepo;
         $this->profileRepo = $profileRepo;
@@ -47,24 +47,43 @@ class HomeController extends Controller
 
     public function index()
     {
-        if(Auth::guest() == True)
-        {
+
+        if (Auth::guest() == True) {
             $categories = $this->cateRepo->showall();
             return view('home', compact('categories'));
-        }
-        else
-        {
+        } else {
             $categories = $this->cateRepo->showall();
             $profile = $this->profileRepo->getProfile(Auth::user()->id);
             $notifications = $this->notiRepo->showUnread();
-            return view('home', compact('categories', 'notifications','profile'));
+            return view('home', compact('categories', 'notifications', 'profile'));
         }
-      
     }
 
     public function readAt($id)
     {
-        $notification = DB::table('notifications')->where('id', $id)->update(['read_at' => Carbon::now()]);
+        $this->notiRepo->readAt($id);
+
+        return redirect()->back();
+    }
+
+    public function readAll()
+    {
+
+        $this->notiRepo->readAll();
+        return redirect()->back();
+    }
+
+    public function showAllNotifications()
+    {
+        $allnotifications = $this->notiRepo->showallUnread();
+        $profile = $this->profileRepo->getProfile(Auth::user()->id);
+        $notifications = $this->notiRepo->showUnread();
+        return view('Notifications.lists', compact('notifications', 'profile', 'allnotifications'));
+    }
+
+    public function destroy($id)
+    {
+        $this->notiRepo->deleteNotification($id);
 
         return redirect()->back();
     }

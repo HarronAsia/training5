@@ -51,7 +51,7 @@
                         <td>
                             @if($community->deleted_at != NULL)
                             <div class="pull-right">
-                                <a href="{{ route('admin.community.restore', ['id'=> $community->id])}}">
+                                <a href="{{ route('communities.admin.restore', ['communityid'=> $community->id])}}">
                                     <button type="button" class="btn btn-success btn-lg">
                                         <i class="fa fa-undo"></i>
                                     </button>
@@ -59,14 +59,14 @@
                             </div>
                             @else
                             <div class="pull-right">
-                                <a href="{{ route('admin.community.edit', ['id'=> $community->id])}}">
+                                <a href="{{ route('communities.admin.edit', ['communityid'=> $community->id])}}">
                                     <button type="button" class="btn btn-info btn-lg">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </a>
                             </div>
                             <div class="pull-right">
-                                <a href="{{ route('admin.community.delete', ['id'=> $community->id])}}">
+                                <a href="{{ route('communities.admin.delete', ['communityid'=> $community->id])}}">
                                     <button type="button" class="btn btn-danger btn-lg">
                                         <i class="fa fa-trash"></i>
                                     </button>

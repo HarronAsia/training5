@@ -7,10 +7,10 @@ use App\Models\Forum;
 
 use App\Http\Requests\StoreForum;
 
-use App\Notifications\Forum\AddForumNotification;
-use App\Notifications\Forum\DeleteForumNotification;
-use App\Notifications\Forum\EditForumNotification;
-use App\Notifications\Forum\RestoreForumNotification;
+use App\Notifications\For_ADMIN\Forum\AddForumNotification;
+use App\Notifications\For_ADMIN\Forum\DeleteForumNotification;
+use App\Notifications\For_ADMIN\Forum\EditForumNotification;
+use App\Notifications\For_ADMIN\Forum\RestoreForumNotification;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -52,8 +52,7 @@ class ForumController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create($id)
-    {
-        
+    { 
         $category = $this->cateRepo->showcategory($id);
         $notifications = $this->notiRepo->showUnread();
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
@@ -118,7 +117,7 @@ class ForumController extends Controller
      */
     public function edit($id,$forumid)
     {
-
+        
         $forum = $this->forumRepo->showforum($forumid);
         $notifications = $this->notiRepo->showUnread();
         $profile = $this->profileRepo->getProfile(Auth::user()->id);
@@ -135,7 +134,7 @@ class ForumController extends Controller
     public function update(StoreForum $request, $id,$forumid)
     {
         $data = $request->validated();
-
+        
         $forum = $this->forumRepo->showforum($forumid);
 
         $forum->title = $data['title'];

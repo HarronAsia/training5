@@ -40,15 +40,19 @@
             <a href="{{ route('community.homepage')}}"><i class="fa fa-circle text-info"></i> Community</a>
         </div>
         @else
-        @if(Auth::user()->role == "manager")
-        <div class="user-panel">
-            <a href="{{ route('manager.community.homepage')}}"><i class="fa fa-circle text-info"></i> Community</a>
-        </div>
-        @else
-        <div class="user-panel">
-            <a href="{{ route('admin.community.homepage')}}"><i class="fa fa-circle text-info"></i> Community</a>
-        </div>
-        @endif
+            @if(Auth::user()->role == 'manager')
+            <div class="user-panel">
+                <a href="{{ route('manager.community.homepage')}}"><i class="fa fa-circle text-info"></i> Community</a>
+            </div>
+            @elseif(Auth::user()->role =='admin')
+            <div class="user-panel">
+                <a href="{{ route('admin.community.homepage')}}"><i class="fa fa-circle text-info"></i> Community</a>
+            </div>
+            @else
+            <div class="user-panel">
+                <a href="{{ route('member.community.homepage')}}"><i class="fa fa-circle text-info"></i> Community</a>
+            </div>
+            @endif
         <hr>
         @if(Auth::user()->email_verified_at == NULL)
 

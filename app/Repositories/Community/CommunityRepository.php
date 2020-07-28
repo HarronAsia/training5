@@ -15,9 +15,9 @@ class CommunityRepository extends BaseRepository implements CommunityRepositoryI
     }
 
     public function showall()
-    {
+    { 
         
-        return $this->model = DB::table('communities')->paginate(10);
+        return $this->model = Community::paginate(10);
     }
 
     public function showcommunity($id)

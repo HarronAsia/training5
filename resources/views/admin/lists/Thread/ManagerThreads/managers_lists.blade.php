@@ -16,7 +16,7 @@
         <a href="{{ url()->previous() }}" class="btn btn-primary">Back</a>
         <hr>
         <h3 class="card-header bg-primary d-flex justify-content-between">
-            Threads by Admin list
+            Threads by Manager list
         </h3>
 
 
@@ -58,7 +58,7 @@
                             @if($thread->deleted_at != NULL)
                            
                             <div class="pull-right">
-                                <a href="{{ route('admin.thread.restore', ['id' => $thread->forum_id ,'threadid' =>$thread->id])}}">
+                                <a href="{{ route('admins.managers.threads.restore', ['threadid' =>$thread->id])}}">
                                     <button type="button" class="btn btn-success btn-lg">
                                         <i class="fa fa-undo"></i>
                                     </button>
@@ -66,7 +66,7 @@
                             </div>
                             @else
                             <div class="pull-right">
-                                <a href="{{ route('admin.thread.edit', ['id' => $thread->forum_id ,'threadid' =>$thread->id])}}">
+                                <a href="{{ route('admins.managers.threads.edit', ['threadid' =>$thread->id])}}">
                                     <button type="button" class="btn btn-info btn-lg">
                                         <i class="fa fa-edit"></i>
                                     </button>
@@ -74,7 +74,7 @@
                             </div>
 
                             <div class="pull-right">
-                                <a href="{{ route('admin.thread.delete', ['id' => $thread->forum_id ,'threadid' =>$thread->id])}}">
+                                <a href="{{ route('admins.managers.threads.delete', ['threadid' =>$thread->id])}}">
                                     <button type="button" class="btn btn-danger btn-lg">
                                         <i class="fa fa-trash"></i>
                                     </button>

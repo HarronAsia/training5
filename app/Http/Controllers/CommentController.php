@@ -219,8 +219,16 @@ class CommentController extends Controller
 
             $comment->notify(new AddCommentNotification());
 
+            if(Auth::user()->role == 'admin')
+            {
+                return redirect()->route('admin.community.show', [$post->community_id]);
+            }
+            elseif(Auth::user()->role == 'manager')
+            {
+                return redirect()->route('manager.community.show', [$post->community_id]);
+            }
 
-            return redirect()->route('community.show', [$post->community_id]);
+            
         } else {
 
             $comment->comment_detail = $data['comment_detail'];
@@ -230,7 +238,15 @@ class CommentController extends Controller
             $comment = $this->commRepo->showComment($comment->id);
             //dd( $comment);
             $comment->notify(new AddCommentNotification());
-            return redirect()->route('community.show', [$post->community_id]);
+
+            if(Auth::user()->role == 'admin')
+            {
+                return redirect()->route('admin.community.show', [$post->community_id]);
+            }
+            elseif(Auth::user()->role == 'manager')
+            {
+                return redirect()->route('manager.community.show', [$post->community_id]);
+            }
         }
     }
 
@@ -274,7 +290,15 @@ class CommentController extends Controller
             //dd( $comment);
             $comment->notify(new AddCommentNotification());
 
-            return redirect()->route('thread.detail', [$thread->forum_id, $thread->id]);
+            if(Auth::user()->role == 'admin')
+            {
+                return redirect()->route('admin.thread.detail', [$thread->forum_id, $thread->id]);
+            }
+            else
+            {
+                return redirect()->route('manager.thread.detail', [$thread->forum_id, $thread->id]);
+            }
+            
         } else {
             $comment->comment_detail = $data['comment_detail'];
             $comment->user_id = Auth::user()->id;
@@ -284,7 +308,14 @@ class CommentController extends Controller
             //dd( $comment);
             $comment->notify(new AddCommentNotification());
 
-            return redirect()->route('thread.detail', [$thread->forum_id, $thread->id]);
+            if(Auth::user()->role == 'admin')
+            {
+                return redirect()->route('admin.thread.detail', [$thread->forum_id, $thread->id]);
+            }
+            else
+            {
+                return redirect()->route('manager.thread.detail', [$thread->forum_id, $thread->id]);
+            }
         }
     }
 
@@ -308,73 +339,4 @@ class CommentController extends Controller
         return redirect()->back();
     }
 
-    ///----------------------------------------Comments for ADmin--------------------------////////////////////////////////////
-    public function adminedit($commentid)
-    {
-
-        $comment = $this->commRepo->showComment($commentid);
-
-        $notifications = $this->notiRepo->showUnread();
-        $profile = $this->profileRepo->getProfile(Auth::user()->id);
-        return view('admin.confirms.Comment.edit', compact('comment', 'notifications', 'profile'));
-    }
-
-    public function adminupdate(StoreComment $request, $commentid)
-    {
-
-        $data = $request->validated();
-
-        $comment = $this->commRepo->showComment($commentid);
-        $old_image = $comment->comment_image;
-
-        if ($request->hasFile('comment_image')) {
-
-            $comment->comment_image =  $data['comment_image'];
-
-            $extension =  $comment->comment_image->getClientOriginalExtension();
-
-
-            $filename =  Auth::user()->name . '.' . $extension;
-
-            $path = storage_path('app/public/comment/post/' . $data['comment_detail'] . '/');
-
-            if (!file_exists($path . $filename)) {
-
-                $comment->comment_image->move($path, $filename);
-            } else if (!file_exists($path . $old_image)) {
-
-                $comment->comment_image->move($path, $filename);
-            } else {
-
-                unlink($path . $old_image);
-                $comment->comment_image->move($path, $filename);
-            }
-        }
-        $comment->comment_image = $filename;
-        $comment->comment_detail = $data['comment_detail'];
-        $comment->user_id = Auth::user()->id;
-
-        $comment->update();
-
-        $comment = $this->commRepo->showComment($comment->id);
-
-        $comment->notify(new AddCommentNotification());
-
-        return redirect()->route('comments.admin.list');
-    }
-
-    public function admindestroy($commentid)
-    {
-
-        $this->commRepo->deletecomment($commentid);
-        return redirect()->back();
-    }
-
-    public function adminrestore($commentid)
-    {
-
-        $this->commRepo->restorecomment($commentid);
-        return redirect()->back();
-    }
-    ///----------------------------------------Comments for ADmin--------------------------////////////////////////////////////
 }

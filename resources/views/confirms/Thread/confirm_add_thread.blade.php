@@ -45,10 +45,12 @@
         </div>
 
         <!-- SUbmit Form -->
-        @if(Auth::user()->role == "manager")
+        @if(Auth::user()->role == 'manager')
         <form action="{{ route('manager.thread.create',['id' => $forum->id ])}}" method="POST" enctype="multipart/form-data" align="center">
-            @else
+            @elseif(Auth::user()->role == 'admin'))
             <form action="{{ route('admin.thread.create',['id' => $forum->id ])}}" method="POST" enctype="multipart/form-data" align="center">
+                @else
+                <form action="{{ route('member.thread.create',['id' => $forum->id ])}}" method="POST" enctype="multipart/form-data" align="center">
                 @endif
 
                 @csrf

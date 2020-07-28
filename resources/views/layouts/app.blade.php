@@ -52,6 +52,9 @@
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
 
+                    @if(Auth::user()->email_verified_at == NULL)
+
+                            @else
                         <!-- User Account Menu -->
                         <li class="dropdown user user-menu">
                             <!-- Menu Toggle Button -->
@@ -59,22 +62,27 @@
                                 <i class="fa fa-bell-o" style="color: black;"></i>
                                 <span class=" hidden-xs" style="color: red;">{{$notifications->count() ?? '0'}}</span>
                             </a>
+                            
+                                <ul class="dropdown-menu">
 
-                            <ul class="dropdown-menu">
+                                    @foreach($notifications->take(3) as $notification)
 
-                                @foreach($notifications as $notification)
-
-                                <li class="user-footer">
-                                    <p>{{$notification->notifiable_type}}</p>
-                                    <p>{{json_decode($notification->data)->data}}</p>
-                                    <a href="{{ route('notification.read', ['id'=> $notification->id])}}">
-                                        <p>&times;</p>
-                                    </a>
-                                </li>
-                                <br>
-                                @endforeach
-                            </ul>
+                                    <li class="user-footer">
+                                        <p>{{$notification->notifiable_type}}</p>
+                                        <p>{{json_decode($notification->data)->data}}</p>
+                                        <a href="{{ route('notification.read', ['id'=> $notification->id])}}">
+                                            <p>&times;</p>
+                                        </a>
+                                    </li>
+                                    <br>
+                                    @endforeach
+                                    <li>
+                                        <a href="{{ route('notifications.all')}}">Show All Unread Messages</a>
+                                    </li>
+                                </ul>
+                            
                         </li>
+                        @endif
                     </ul>
                 </div>
 
@@ -114,19 +122,18 @@
                                 @else
                                 <li class="user-footer">
 
-                                    <a href="{{ route('profile.index', ['name'=> Auth::user()->name,'id'=> Auth::user()->id])}}" class="btn btn-default btn-flat">Profile</a>
+                                    <a href="{{ route('profile.index', ['name' => Auth::user()->name?? '','id'=> Auth::user()->id])}}" class="btn btn-default btn-flat">Profile</a>
 
                                 </li>
-                                @foreach($profile as $value)
+                               
                                 <li class="user-footer">
-                                    @if(Auth::user()->id == $value->id)
+                                    @if($profile->user_id?? '' == Auth::user()->id)
                                     <a href="{{ route('account.profile', ['id'=> Auth::user()->id])}}" class="btn btn-default btn-flat">Personal Information</a>
                                     @else
 
                                     @endif
-
                                 </li>
-                                @endforeach
+                               
                                 <li class="user-footer">
 
                                     <a href="{{ url('/logout') }}" class="btn btn-default btn-flat" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -153,6 +160,15 @@
         @include('layouts.sidebar')
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper">
+            @if(Auth::user()->email_verified_at == NULL)
+            <div class="align-middle">
+                <a href="/email/verify" style="background-color: red; font-size: 35px; color: white;">
+                    Click here to verify your account before doing anything !!!
+                </a>
+            </div>
+            @else
+
+            @endif
             @yield('content')
         </div>
 

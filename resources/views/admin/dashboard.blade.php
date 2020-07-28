@@ -252,7 +252,7 @@
                     <thead>
                         <tr>
                             <th>
-                                <a href="{{route('communities.admin.list')}}">
+                                <a href="{{route('posts.admin.list')}}">
                                     Number of Posts
                                 </a>
                             </th>
@@ -322,6 +322,36 @@
                     <tbody>
                         <td>
                             {{$reports}}
+                        </td>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-primary">
+        <hr>
+        <h3 class="card-header bg-primary d-flex justify-content-between">
+            Reports
+        </h3>
+
+        <div class="card-body">
+            <div class="table-responsive" id="showBlog">
+                <table class="table table-striped text-center">
+                    <thead>
+                        <tr>
+                            <th>
+                                <a href="{{route('notifications.admin.list')}}">
+                                    Number of Notifications
+                                </a>
+                            </th>
+    
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <td>
+                            {{$allnotifications}}
                         </td>
 
                     </tbody>

@@ -34,4 +34,9 @@ class Post extends Model
         return $this->morphMany('App\Models\Like', 'likeable');
     }
 
+    public function like()
+    {
+        return $this->morphOne('App\Models\Like', 'likeable');
+    }
+
 }

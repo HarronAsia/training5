@@ -47,13 +47,17 @@
                             @if($comment->comment_image == NULL)
                             <img src="{{asset('storage/blank.png')}}" alt="Image" style="max-width: 200px ; max-height:200px;">
                             @else
-                            <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+                                @if($comment->commentable_type == 'App\Post')
+                                <img src="{{asset('storage/comment/post/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+                                @else
+                                <img src="{{asset('storage/comment/thread/'.$comment->comment_detail.'/'.$comment->comment_image)}}" alt="image" style="max-width: 200px ; max-height:200px;">
+                                @endif
                             @endif
                         </td>
                         <td>
                             @if($comment->deleted_at != NULL)
                             <div class="pull-right">
-                                <a href="{{route('admin.comment.restore',['commentid'=>$comment->id])}}">
+                                <a href="{{route('comments.admin.restore',['commentid'=>$comment->id])}}">
                                     <button type="button" class="btn btn-success btn-lg">
                                         <i class="fa fa-undo"></i>
                                     </button>
@@ -61,12 +65,12 @@
                             </div>
                             @else
                             <div class="pull-right">
-                                <a href="{{route('admin.comment.edit',['commentid'=>$comment->id])}}">
+                                <a href="{{route('comments.admin.edit',['commentid'=>$comment->id])}}">
                                     <button type="button" class="btn btn-info btn-lg">
                                         <i class="fa fa-edit"></i>
                                     </button>
                                 </a>
-                                <a href="{{route('admin.comment.delete',['commentid'=>$comment->id])}}">
+                                <a href="{{route('comments.admin.delete',['commentid'=>$comment->id])}}">
                                     <button type="button" class="btn btn-danger btn-lg">
                                         <i class="fa fa-trash"></i>
                                     </button>
